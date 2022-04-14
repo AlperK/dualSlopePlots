@@ -189,7 +189,7 @@ print('Std Phase Differences: {}'.format(np.std(phaseDegrees4 - phaseDegrees8)))
 plt.savefig(Path.joinpath(saveLoc, Path('Phase Differences Hist')), bbox_inches='tight', dpi=800)
 # plt.show()
 
-corrCoeffAmp = np.corrcoef(amp4, amp8)
+corrcoeffAmp = np.corrcoef(amp4, amp8)
 print(corrcoeffAmp)
 print()
 corrcoeffPha = np.corrcoef(phaseDegrees4, phaseDegrees8)
