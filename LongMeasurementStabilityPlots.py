@@ -12,7 +12,7 @@ def voltage2phase(voltage, p):
             return root
 
 
-saveLoc = Path.joinpath(Path('2022-04-13'), Path('30-MIN-3-36'), Path('1'))
+saveLoc = Path.joinpath(Path('2022-04-13'), Path('30-MIN-PHANTOM-3'), Path('2'))
 
 amp = Path.joinpath(saveLoc, Path('amplitude.csv'))
 amp4 = []
@@ -100,7 +100,7 @@ plt.figure('830 nm Amplitude')
 plt.scatter(np.arange(amp8.size), amp8, color='brown', alpha=0.6,
             linewidth=2, edgecolor='darkred', label='830nm')
 plt.figtext(0.2, 0.3, 'SNR = {}'.format(np.around(10*np.log10(np.mean(amp8)/np.std(amp8)), 2)))
-plt.title('Amplitude')
+plt.title('Raw measured amplitude')
 plt.xlabel('Measurement #')
 plt.ylabel('Voltage(V)')
 plt.tight_layout()
@@ -110,7 +110,7 @@ plt.savefig(Path.joinpath(saveLoc, Path('830 nm Amplitude')), bbox_inches='tight
 plt.figure('830 nm Amplitude Hist')
 plt.hist(amp8, bins=30, color='brown', alpha=0.6,
          linewidth=2, edgecolor='darkred', label='830nm')
-plt.title('Voltage')
+plt.title('Raw measured amplitude')
 plt.xlabel('Voltage(V)')
 plt.ylabel('Count')
 plt.tight_layout()
@@ -124,7 +124,7 @@ plt.figure('830 nm Phase')
 plt.scatter(np.arange(phaseDegrees8.size), phaseDegrees8,
             color='brown', alpha=0.6, linewidth=2, edgecolor='darkred', label='830nm')
 plt.figtext(0.2, 0.7, 'std = {}°'.format(np.around(np.std(phaseDegrees8), 2)))
-plt.title('Phase')
+plt.title('Raw measured phase')
 plt.xlabel('Measurement #')
 plt.ylabel('Degrees(°)')
 plt.legend()
@@ -133,7 +133,7 @@ plt.savefig(Path.joinpath(saveLoc, Path('830 nm Phase')), bbox_inches='tight', d
 plt.figure('830 nm Phase Hist')
 plt.hist(phaseDegrees8, bins=30, label='830nm',
          color='brown', alpha=0.6, linewidth=2, edgecolor='darkred', )
-plt.title('Phase')
+plt.title('Raw measured phase')
 plt.xlabel('Degrees(°)')
 plt.ylabel('Count')
 plt.tight_layout()
@@ -156,7 +156,7 @@ plt.savefig(Path.joinpath(saveLoc, Path('Amplitude Ratio')), bbox_inches='tight'
 plt.figure('Amplitude Ratio Hist')
 plt.hist(amp4/amp8, bins='fd', label='690nm / 830nm',
          color='seagreen', alpha=0.6, linewidth=2, edgecolor='darkgreen')
-plt.title('Voltage')
+plt.title('Amplitude Ratio')
 plt.xlabel('Voltage(V)')
 plt.ylabel('Count')
 plt.tight_layout()
@@ -180,11 +180,23 @@ plt.savefig(Path.joinpath(saveLoc, Path('Phase Differences')), bbox_inches='tigh
 plt.figure('Phase Difference Hist')
 plt.hist(phaseDegrees4 - phaseDegrees8, bins='fd', label='690nm - 830nm',
          color='seagreen', alpha=0.6, linewidth=2, edgecolor='darkgreen')
-plt.title('Phase Differences')
+plt.title('Phase Difference')
 plt.xlabel('Degrees(°)', fontsize=14)
 plt.ylabel('Count', fontsize=14)
 plt.tight_layout()
 plt.legend()
 print('Std Phase Differences: {}'.format(np.std(phaseDegrees4 - phaseDegrees8)))
 plt.savefig(Path.joinpath(saveLoc, Path('Phase Differences Hist')), bbox_inches='tight', dpi=800)
-plt.show()
+# plt.show()
+
+corrCoeffAmp = np.corrcoef(amp4, amp8)
+print(corrcoeffAmp)
+print()
+corrcoeffPha = np.corrcoef(phaseDegrees4, phaseDegrees8)
+print(corrcoeffPha)
+print()
+corrcoeffAmpPha690 = np.corrcoef(amp4, phaseDegrees4)
+print(corrcoeffAmpPha690)
+print()
+corrcoeffAmpPha830 = np.corrcoef(amp8, phaseDegrees8)
+print(corrcoeffAmpPha830)
