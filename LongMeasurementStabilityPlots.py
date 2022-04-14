@@ -86,7 +86,7 @@ plt.savefig(Path.joinpath(saveLoc, Path('690 nm Phase')), bbox_inches='tight', d
 
 plt.figure('690 nm Phase Hist')
 plt.hist(phaseDegrees4, bins='fd', color='darkslateblue', alpha=0.6,
-            linewidth=2, edgecolor='darkblue', label='690nm')
+         linewidth=2, edgecolor='darkblue', label='690nm')
 plt.title('Raw measured phase')
 plt.xlabel('Degrees(°)')
 plt.ylabel('Count')
@@ -109,7 +109,7 @@ plt.savefig(Path.joinpath(saveLoc, Path('830 nm Amplitude')), bbox_inches='tight
 
 plt.figure('830 nm Amplitude Hist')
 plt.hist(amp8, bins=30, color='brown', alpha=0.6,
-            linewidth=2, edgecolor='darkred', label='830nm')
+         linewidth=2, edgecolor='darkred', label='830nm')
 plt.title('Voltage')
 plt.xlabel('Voltage(V)')
 plt.ylabel('Count')
@@ -155,7 +155,7 @@ plt.savefig(Path.joinpath(saveLoc, Path('Amplitude Ratio')), bbox_inches='tight'
 
 plt.figure('Amplitude Ratio Hist')
 plt.hist(amp4/amp8, bins='fd', label='690nm / 830nm',
-            color='seagreen', alpha=0.6, linewidth=2, edgecolor='darkgreen')
+         color='seagreen', alpha=0.6, linewidth=2, edgecolor='darkgreen')
 plt.title('Voltage')
 plt.xlabel('Voltage(V)')
 plt.ylabel('Count')
@@ -179,7 +179,7 @@ plt.savefig(Path.joinpath(saveLoc, Path('Phase Differences')), bbox_inches='tigh
 
 plt.figure('Phase Difference Hist')
 plt.hist(phaseDegrees4 - phaseDegrees8, bins='fd', label='690nm - 830nm',
-            color='seagreen', alpha=0.6, linewidth=2, edgecolor='darkgreen')
+         color='seagreen', alpha=0.6, linewidth=2, edgecolor='darkgreen')
 plt.title('Phase Differences')
 plt.xlabel('Degrees(°)', fontsize=14)
 plt.ylabel('Count', fontsize=14)
@@ -188,4 +188,3 @@ plt.legend()
 print('Std Phase Differences: {}'.format(np.std(phaseDegrees4 - phaseDegrees8)))
 plt.savefig(Path.joinpath(saveLoc, Path('Phase Differences Hist')), bbox_inches='tight', dpi=800)
 plt.show()
-
