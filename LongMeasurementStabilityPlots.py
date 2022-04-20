@@ -20,7 +20,7 @@ def rolling_apply(fun, a, w):
     return r
 
 
-saveLoc = Path.joinpath(Path('2022-04-19'), Path('TEST'), Path('1'))
+saveLoc = Path.joinpath(Path('2022-04-13'), Path('30-MIN-3-36'), Path('2'))
 
 amp = Path.joinpath(saveLoc, Path('amplitude.csv'))
 amp4 = []
@@ -74,6 +74,8 @@ axes[0].set_title('Raw amplitude')
 
 axes[1].plot(100 * amp4_movingStd / amp4_movingMean, color='darkslateblue', alpha=0.6,
              linewidth=2, label='690nm')
+axes[1].axhline(0.2, color='darkslateblue', alpha=1.0,
+                linewidth=3, linestyle=':')
 axes[1].set_xlabel('Measurement #')
 axes[1].set_ylabel('Percent')
 axes[1].set_title('Std / Mean, window size = {} '.format(windowSize))
@@ -103,6 +105,8 @@ axes[0].set_title('Raw phase')
 
 axes[1].plot(pha4_movingStd, color='darkslateblue', alpha=0.6,
              linewidth=2, label='690nm')
+axes[1].axhline(0.2, color='darkslateblue', alpha=1.0,
+                linewidth=3, linestyle=':')
 axes[1].set_xlabel('Measurement #')
 axes[1].set_ylabel('Degrees(°)')
 axes[1].set_title('Std, window size = {} '.format(windowSize))
@@ -132,6 +136,8 @@ axes[0].set_title('Raw amplitude')
 
 axes[1].plot(100 * amp8_movingStd / amp8_movingMean, color='brown', alpha=0.6,
              linewidth=2, label='830nm')
+axes[1].axhline(0.2, color='brown', alpha=1.0,
+                linewidth=3, linestyle=':')
 axes[1].set_xlabel('Measurement #')
 axes[1].set_ylabel('Percent')
 axes[1].set_title('Std / Mean, window size = {} '.format(windowSize))
@@ -161,6 +167,8 @@ axes[0].set_title('Raw phase')
 
 axes[1].plot(pha8_movingStd, color='brown', alpha=0.6,
              linewidth=2, label='830nm')
+axes[1].axhline(0.2, color='brown', alpha=1.0,
+                linewidth=3, linestyle=':')
 axes[1].set_xlabel('Measurement #')
 axes[1].set_ylabel('Degrees(°)')
 axes[1].set_title('Std, window size = {} '.format(windowSize))
@@ -190,6 +198,8 @@ axes[0].set_title('Raw amplitude ratio')
 
 axes[1].plot(100 * ampRatio_movingStd / ampRatio_movingMean, color='seagreen', alpha=0.6,
              linewidth=2, label='830nm')
+axes[1].axhline(0.2, color='seagreen', alpha=1.0,
+                linewidth=3, linestyle=':')
 axes[1].set_xlabel('Measurement #')
 axes[1].set_ylabel('Percent')
 axes[1].set_title('Std / Mean, window size = {} '.format(windowSize))
@@ -219,6 +229,8 @@ axes[0].set_title('Raw Phase Difference')
 
 axes[1].plot(phaDiff_movingStd, color='seagreen', alpha=0.6,
              linewidth=2, label='830nm')
+axes[1].axhline(0.2, color='seagreen', alpha=1.0,
+                linewidth=3, linestyle=':')
 axes[1].set_xlabel('Measurement #')
 axes[1].set_ylabel('Degrees (°)')
 axes[1].set_title('Std, window size = {} '.format(windowSize))
