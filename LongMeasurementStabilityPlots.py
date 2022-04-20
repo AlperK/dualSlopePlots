@@ -12,7 +12,15 @@ def voltage2phase(voltage, p):
             return root
 
 
-saveLoc = Path.joinpath(Path('2022-04-13'), Path('30-MIN-PHANTOM-3'), Path('2'))
+def rolling_apply(fun, a, w):
+    r = np.empty(a.shape)
+    r.fill(np.nan)
+    for i in range(w - 1, a.shape[0]):
+        r[i] = fun(a[(i-w+1):i+1])
+    return r
+
+
+saveLoc = Path.joinpath(Path('2022-04-19'), Path('TEST'), Path('1'))
 
 amp = Path.joinpath(saveLoc, Path('amplitude.csv'))
 amp4 = []
@@ -21,8 +29,8 @@ with open(amp, newline='') as csv_file:
     reader = csv.reader(csv_file, delimiter=',')
     next(reader)
     for row in reader:
-        amp4.append(float(row[3])/0.2063)
-        amp8.append(float(row[7])/0.2063)
+        amp8.append(float(row[3])/0.2063)
+        amp4.append(float(row[7])/0.2063)
 
 amp4 = np.array(amp4)
 amp8 = np.array(amp8)
@@ -35,8 +43,8 @@ with open(pha, newline='') as csv_file:
     reader = csv.reader(csv_file, delimiter=',')
     next(reader)
     for row in reader:
-        pha4.append(float(row[3]))
-        pha8.append(float(row[7]))
+        pha8.append(float(row[3]))
+        pha4.append(float(row[7]))
 
 phaseDegrees4 = np.zeros_like(pha4)
 phaseDegrees8 = np.zeros_like(pha8)
@@ -49,154 +57,192 @@ for i, amp in enumerate(amp8):
     phaseDegrees8[i] = voltage2phase(pha8[i], coefficients)
 
 
-#   690nm plots
-plt.figure('690 nm Amplitude')
-plt.scatter(np.arange(amp4.size), amp4, color='darkslateblue', alpha=0.6,
-            linewidth=2, edgecolors='darkblue', label='690nm')
-plt.figtext(0.2, 0.3, 'SNR = {}'.format(np.around(10*np.log10(np.mean(amp4)/np.std(amp4)), 2)))
-plt.title('Raw measured amplitude')
-plt.xlabel('Measurement #')
-plt.ylabel('Voltage(V)')
-plt.tight_layout()
-plt.legend()
-plt.savefig(Path.joinpath(saveLoc, Path('690 nm Amplitude')), bbox_inches='tight', dpi=800)
+windowSize = 5
 
-plt.figure('690 nm Amplitude Hist')
-plt.hist(amp4, bins='fd', color='darkslateblue', alpha=0.6,
-         linewidth=2, edgecolor='darkblue', label='690 nm')
-plt.title('Raw measured amplitude')
-plt.xlabel('Voltage(V)')
-plt.ylabel('Count')
-plt.tight_layout()
-plt.legend()
-plt.savefig(Path.joinpath(saveLoc, Path('690 nm Amplitude Hist')), bbox_inches='tight', dpi=800)
-print('Std for 690nm Amplitude: {}'.format(np.std(amp4)))
-print('Mean for 690nm Amplitude: {}'.format(np.mean(amp4)))
-print('10dB(mean/std) for 690nm Amplitude: {}'.format(10*np.log10(np.mean(amp4)/np.std(amp4))))
+#   690 nm Amplitude Plots
+amp4_movingMean = rolling_apply(np.mean, amp4, windowSize)
+amp4_movingStd = rolling_apply(np.std, amp4, windowSize)
 
-plt.figure('690 nm Phase')
-plt.scatter(np.arange(phaseDegrees4.size), phaseDegrees4, color='darkslateblue', alpha=0.6,
-            linewidth=2, edgecolor='darkblue', label='690 nm')
-plt.figtext(0.2, 0.7, 'std = {}°'.format(np.around(np.std(phaseDegrees4), 2)))
-plt.title('Raw measured phase')
-plt.xlabel('Measurement #')
-plt.ylabel('Degrees(°)')
-plt.legend()
-plt.savefig(Path.joinpath(saveLoc, Path('690 nm Phase')), bbox_inches='tight', dpi=800)
+fig, axes = plt.subplots(3, figsize=(8, 8), num='690 nm Amplitude')
+fig.suptitle('690 nm Amplitude')
 
-plt.figure('690 nm Phase Hist')
-plt.hist(phaseDegrees4, bins='fd', color='darkslateblue', alpha=0.6,
-         linewidth=2, edgecolor='darkblue', label='690nm')
-plt.title('Raw measured phase')
-plt.xlabel('Degrees(°)')
-plt.ylabel('Count')
-plt.tight_layout()
-plt.legend()
-print('Std for 690nm Phase: {}'.format(np.std(phaseDegrees4)))
-plt.savefig(Path.joinpath(saveLoc, Path('690 nm Phase Hist')), bbox_inches='tight', dpi=800)
+axes[0].scatter(np.arange(amp4.size), 1000 * amp4, color='darkslateblue', alpha=0.6,
+                linewidth=2, edgecolors='darkblue', label='690nm')
+axes[0].set_xlabel('Measurement #')
+axes[0].set_ylabel('Voltage(mV)')
+axes[0].set_title('Raw amplitude')
 
-#   830nm plots
-plt.figure('830 nm Amplitude')
-plt.scatter(np.arange(amp8.size), amp8, color='brown', alpha=0.6,
-            linewidth=2, edgecolor='darkred', label='830nm')
-plt.figtext(0.2, 0.3, 'SNR = {}'.format(np.around(10*np.log10(np.mean(amp8)/np.std(amp8)), 2)))
-plt.title('Raw measured amplitude')
-plt.xlabel('Measurement #')
-plt.ylabel('Voltage(V)')
-plt.tight_layout()
-plt.legend()
-plt.savefig(Path.joinpath(saveLoc, Path('830 nm Amplitude')), bbox_inches='tight', dpi=800)
+axes[1].plot(100 * amp4_movingStd / amp4_movingMean, color='darkslateblue', alpha=0.6,
+             linewidth=2, label='690nm')
+axes[1].set_xlabel('Measurement #')
+axes[1].set_ylabel('Percent')
+axes[1].set_title('Std / Mean, window size = {} '.format(windowSize))
 
-plt.figure('830 nm Amplitude Hist')
-plt.hist(amp8, bins=30, color='brown', alpha=0.6,
-         linewidth=2, edgecolor='darkred', label='830nm')
-plt.title('Raw measured amplitude')
-plt.xlabel('Voltage(V)')
-plt.ylabel('Count')
-plt.tight_layout()
-plt.legend()
-print('Std for 830nm Amplitude1: {}'.format(np.std(amp8)))
-print('10dB(mean/std) for 830nm Amplitude: {}'.format(10*np.log10(np.mean(amp8)/np.std(amp8))))
-plt.savefig(Path.joinpath(saveLoc, Path('830 nm Amplitude Hist')), bbox_inches='tight', dpi=800)
+axes[2].hist(1000 * amp4, bins='fd', color='darkslateblue', alpha=0.6,
+             linewidth=2, edgecolor='darkblue', label='690 nm')
+axes[2].set_xlabel('Voltage (mV)')
+axes[2].set_ylabel('Count')
+axes[2].set_title('Raw amplitude')
+
+fig.tight_layout()
+fig.savefig(Path.joinpath(saveLoc, Path('690 nm Amplitude')), bbox_inches='tight', dpi=800)
 
 
-plt.figure('830 nm Phase')
-plt.scatter(np.arange(phaseDegrees8.size), phaseDegrees8,
-            color='brown', alpha=0.6, linewidth=2, edgecolor='darkred', label='830nm')
-plt.figtext(0.2, 0.7, 'std = {}°'.format(np.around(np.std(phaseDegrees8), 2)))
-plt.title('Raw measured phase')
-plt.xlabel('Measurement #')
-plt.ylabel('Degrees(°)')
-plt.legend()
-plt.savefig(Path.joinpath(saveLoc, Path('830 nm Phase')), bbox_inches='tight', dpi=800)
+#   690 nm Phase Plots
+pha4_movingMean = rolling_apply(np.mean, phaseDegrees4, windowSize)
+pha4_movingStd = rolling_apply(np.std, phaseDegrees4, windowSize)
 
-plt.figure('830 nm Phase Hist')
-plt.hist(phaseDegrees8, bins=30, label='830nm',
-         color='brown', alpha=0.6, linewidth=2, edgecolor='darkred', )
-plt.title('Raw measured phase')
-plt.xlabel('Degrees(°)')
-plt.ylabel('Count')
-plt.tight_layout()
-plt.legend()
-plt.savefig(Path.joinpath(saveLoc, Path('830 nm Phase Hist')), bbox_inches='tight', dpi=800)
-print('Std for 830nm Phase4: {}'.format(np.std(phaseDegrees8)))
+fig, axes = plt.subplots(3, figsize=(8, 8), num='690 nm Phase')
+fig.suptitle('690 nm Phase')
 
-# Amplitude Ratio
-plt.figure('Amplitude Ratio')
-plt.scatter(np.arange(amp8.size), amp4/amp8, label='690nm / 830nm',
-            color='seagreen', alpha=0.6, linewidth=2, edgecolor='darkgreen')
-plt.figtext(0.2, 0.3, 'SNR = {}'.format(np.around(10*np.log10(np.mean(amp4/amp8)/np.std(amp4/amp8)), 2)))
-plt.title('Amplitude Ratio')
-plt.xlabel('Measurement #')
-plt.ylabel('a.u.')
-plt.tight_layout()
-plt.legend()
-plt.savefig(Path.joinpath(saveLoc, Path('Amplitude Ratio')), bbox_inches='tight', dpi=800)
+axes[0].scatter(np.arange(phaseDegrees4.size), phaseDegrees4, color='darkslateblue', alpha=0.6,
+                linewidth=2, edgecolors='darkblue', label='690nm')
+axes[0].set_xlabel('Measurement #')
+axes[0].set_ylabel('Degrees(°)')
+axes[0].set_title('Raw phase')
 
-plt.figure('Amplitude Ratio Hist')
-plt.hist(amp4/amp8, bins='fd', label='690nm / 830nm',
-         color='seagreen', alpha=0.6, linewidth=2, edgecolor='darkgreen')
-plt.title('Amplitude Ratio')
-plt.xlabel('Voltage(V)')
-plt.ylabel('Count')
-plt.tight_layout()
-plt.legend()
-plt.savefig(Path.joinpath(saveLoc, Path('Amplitude Ratio Hist')), bbox_inches='tight', dpi=800)
-print('Std Amplitude Ratios: {}'.format(np.std(amp4/amp8)))
-print('10dB(mean/std) for Amplitude Ratios: {}'.format(10*np.log10(np.mean(amp4/amp8)/np.std(amp4/amp8))))
+axes[1].plot(pha4_movingStd, color='darkslateblue', alpha=0.6,
+             linewidth=2, label='690nm')
+axes[1].set_xlabel('Measurement #')
+axes[1].set_ylabel('Degrees(°)')
+axes[1].set_title('Std, window size = {} '.format(windowSize))
+
+axes[2].hist(phaseDegrees4, bins='fd', color='darkslateblue', alpha=0.6,
+             linewidth=2, edgecolor='darkblue', label='690 nm')
+axes[2].set_xlabel('Degrees(°)')
+axes[2].set_ylabel('Count')
+axes[2].set_title('Raw phase')
+
+fig.tight_layout()
+fig.savefig(Path.joinpath(saveLoc, Path('690 nm Phase')), bbox_inches='tight', dpi=800)
+
+
+#   830 nm Amplitude Plots
+amp8_movingMean = rolling_apply(np.mean, amp8, windowSize)
+amp8_movingStd = rolling_apply(np.std, amp8, windowSize)
+
+fig, axes = plt.subplots(3, figsize=(8, 8), num='830 nm Amplitude')
+fig.suptitle('830 nm Amplitude')
+
+axes[0].scatter(np.arange(amp8.size), 1000 * amp8, color='brown', alpha=0.6,
+                linewidth=2, edgecolors='darkred', label='830nm')
+axes[0].set_xlabel('Measurement #')
+axes[0].set_ylabel('Voltage(mV)')
+axes[0].set_title('Raw amplitude')
+
+axes[1].plot(100 * amp8_movingStd / amp8_movingMean, color='brown', alpha=0.6,
+             linewidth=2, label='830nm')
+axes[1].set_xlabel('Measurement #')
+axes[1].set_ylabel('Percent')
+axes[1].set_title('Std / Mean, window size = {} '.format(windowSize))
+
+axes[2].hist(1000 * amp8, bins='fd', color='brown', alpha=0.6,
+             linewidth=2, edgecolor='darkred', label='830 nm')
+axes[2].set_xlabel('Voltage (mV)')
+axes[2].set_ylabel('Count')
+axes[2].set_title('Raw amplitude')
+
+fig.tight_layout()
+fig.savefig(Path.joinpath(saveLoc, Path('830 nm Amplitude')), bbox_inches='tight', dpi=800)
+
+
+#   830 nm Phase Plots
+pha8_movingMean = rolling_apply(np.mean, phaseDegrees8, windowSize)
+pha8_movingStd = rolling_apply(np.std, phaseDegrees8, windowSize)
+
+fig, axes = plt.subplots(3, figsize=(8, 8), num='830 nm Phase')
+fig.suptitle('830 nm Phase')
+
+axes[0].scatter(np.arange(phaseDegrees8.size), phaseDegrees8, color='brown', alpha=0.6,
+                linewidth=2, edgecolors='darkred', label='830nm')
+axes[0].set_xlabel('Measurement #')
+axes[0].set_ylabel('Degrees(°)')
+axes[0].set_title('Raw phase')
+
+axes[1].plot(pha8_movingStd, color='brown', alpha=0.6,
+             linewidth=2, label='830nm')
+axes[1].set_xlabel('Measurement #')
+axes[1].set_ylabel('Degrees(°)')
+axes[1].set_title('Std, window size = {} '.format(windowSize))
+
+axes[2].hist(phaseDegrees8, bins='fd', color='brown', alpha=0.6,
+             linewidth=2, edgecolor='darkred', label='830 nm')
+axes[2].set_xlabel('Degrees(°)')
+axes[2].set_ylabel('Count')
+axes[2].set_title('Raw phase')
+
+fig.tight_layout()
+fig.savefig(Path.joinpath(saveLoc, Path('830 nm Phase')), bbox_inches='tight', dpi=800)
+
+
+#   Amplitude Ratio
+ampRatio_movingMean = rolling_apply(np.mean, amp4 / amp8, windowSize)
+ampRatio_movingStd = rolling_apply(np.std, amp4 / amp8, windowSize)
+
+fig, axes = plt.subplots(3, figsize=(8, 8), num='Amplitude Ratio')
+fig.suptitle('Amplitude Ratio')
+
+axes[0].scatter(np.arange(amp8.size), amp4 / amp8, color='seagreen', alpha=0.6,
+                linewidth=2, edgecolors='darkgreen', label='830nm')
+axes[0].set_xlabel('Measurement #')
+axes[0].set_ylabel('a.u.')
+axes[0].set_title('Raw amplitude ratio')
+
+axes[1].plot(100 * ampRatio_movingStd / ampRatio_movingMean, color='seagreen', alpha=0.6,
+             linewidth=2, label='830nm')
+axes[1].set_xlabel('Measurement #')
+axes[1].set_ylabel('Percent')
+axes[1].set_title('Std / Mean, window size = {} '.format(windowSize))
+
+axes[2].hist(amp4 / amp8, bins='fd', color='seagreen', alpha=0.6,
+             linewidth=2, edgecolor='darkgreen', label='830 nm')
+axes[2].set_xlabel('a.u.')
+axes[2].set_ylabel('Count')
+axes[2].set_title('Histogram')
+
+fig.tight_layout()
+fig.savefig(Path.joinpath(saveLoc, Path('Amplitude Ratio')), bbox_inches='tight', dpi=800)
+
 
 # Phase Differences
-fig = plt.figure('Phase Difference')
-plt.scatter(np.arange(phaseDegrees4.size), phaseDegrees4 - phaseDegrees8, label='690nm - 830nm',
-            color='seagreen', alpha=0.6, linewidth=2, edgecolor='darkgreen')
-plt.figtext(0.2, 0.7, 'std = {}°'.format(np.around(np.std(phaseDegrees4 - phaseDegrees8), 2)))
-plt.title('Phase Difference')
-plt.xlabel('Measurement #', fontsize=14)
-plt.ylabel('Degrees(°)', fontsize=14)
-plt.tight_layout()
-plt.legend()
-plt.savefig(Path.joinpath(saveLoc, Path('Phase Differences')), bbox_inches='tight', dpi=800)
+phaDiff_movingMean = rolling_apply(np.mean, phaseDegrees4 - phaseDegrees8, windowSize)
+phaDiff_movingStd = rolling_apply(np.std, phaseDegrees4 - phaseDegrees8, windowSize)
 
-plt.figure('Phase Difference Hist')
-plt.hist(phaseDegrees4 - phaseDegrees8, bins='fd', label='690nm - 830nm',
-         color='seagreen', alpha=0.6, linewidth=2, edgecolor='darkgreen')
-plt.title('Phase Difference')
-plt.xlabel('Degrees(°)', fontsize=14)
-plt.ylabel('Count', fontsize=14)
-plt.tight_layout()
-plt.legend()
-print('Std Phase Differences: {}'.format(np.std(phaseDegrees4 - phaseDegrees8)))
-plt.savefig(Path.joinpath(saveLoc, Path('Phase Differences Hist')), bbox_inches='tight', dpi=800)
-# plt.show()
+fig, axes = plt.subplots(3, figsize=(8, 8), num='Phase Difference')
+fig.suptitle('Phase Difference')
 
-corrcoeffAmp = np.corrcoef(amp4, amp8)
-print(corrcoeffAmp)
-print()
-corrcoeffPha = np.corrcoef(phaseDegrees4, phaseDegrees8)
-print(corrcoeffPha)
-print()
-corrcoeffAmpPha690 = np.corrcoef(amp4, phaseDegrees4)
-print(corrcoeffAmpPha690)
-print()
-corrcoeffAmpPha830 = np.corrcoef(amp8, phaseDegrees8)
-print(corrcoeffAmpPha830)
+axes[0].scatter(np.arange(amp8.size), phaseDegrees4 - phaseDegrees8, color='seagreen', alpha=0.6,
+                linewidth=2, edgecolors='darkgreen', label='830nm')
+axes[0].set_xlabel('Measurement #')
+axes[0].set_ylabel('Degrees (°)')
+axes[0].set_title('Raw Phase Difference')
+
+axes[1].plot(phaDiff_movingStd, color='seagreen', alpha=0.6,
+             linewidth=2, label='830nm')
+axes[1].set_xlabel('Measurement #')
+axes[1].set_ylabel('Degrees (°)')
+axes[1].set_title('Std, window size = {} '.format(windowSize))
+
+axes[2].hist(phaseDegrees4 - phaseDegrees8, bins='fd', color='seagreen', alpha=0.6,
+             linewidth=2, edgecolor='darkgreen', label='830 nm')
+axes[2].set_xlabel('Degrees (°)')
+axes[2].set_ylabel('Count')
+axes[2].set_title('Histogram')
+
+fig.tight_layout()
+fig.savefig(Path.joinpath(saveLoc, Path('Phase Difference')), bbox_inches='tight', dpi=800)
+
+
+plt.show()
+
+# corrcoeffAmp = np.corrcoef(amp4, amp8)
+# print(corrcoeffAmp)
+# print()
+# corrcoeffPha = np.corrcoef(phaseDegrees4, phaseDegrees8)
+# print(corrcoeffPha)
+# print()
+# corrcoeffAmpPha690 = np.corrcoef(amp4, phaseDegrees4)
+# print(corrcoeffAmpPha690)
+# print()
+# corrcoeffAmpPha830 = np.corrcoef(amp8, phaseDegrees8)
+# print(corrcoeffAmpPha830)
