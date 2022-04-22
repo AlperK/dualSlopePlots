@@ -20,7 +20,7 @@ def rolling_apply(fun, a, w):
     return r
 
 
-saveLoc = Path.joinpath(Path('2022-04-13'), Path('30-MIN-3-36'), Path('2'))
+saveLoc = Path.joinpath(Path('2022-04-22'), Path('ALL-DAY'), Path('1'))
 
 amp = Path.joinpath(saveLoc, Path('amplitude.csv'))
 amp4 = []
@@ -59,12 +59,12 @@ for i, amp in enumerate(amp8):
 
 windowSize = 5
 
-#   690 nm Amplitude Plots
+#   690 nm Zoomed Amplitude Plots
 amp4_movingMean = rolling_apply(np.mean, amp4, windowSize)
 amp4_movingStd = rolling_apply(np.std, amp4, windowSize)
 
 fig, axes = plt.subplots(3, figsize=(8, 8), num='690 nm Amplitude')
-fig.suptitle('690 nm Amplitude')
+fig.suptitle('690 nm Zoomed Amplitude')
 
 axes[0].scatter(np.arange(amp4.size), 1000 * amp4, color='darkslateblue', alpha=0.6,
                 linewidth=2, edgecolors='darkblue', label='690nm')
@@ -76,6 +76,7 @@ axes[1].plot(100 * amp4_movingStd / amp4_movingMean, color='darkslateblue', alph
              linewidth=2, label='690nm')
 axes[1].axhline(0.2, color='darkslateblue', alpha=1.0,
                 linewidth=3, linestyle=':')
+# axes[1].set_ylim([0, 0.4])
 axes[1].set_xlabel('Measurement #')
 axes[1].set_ylabel('Percent')
 axes[1].set_title('Std / Mean, window size = {} '.format(windowSize))
@@ -88,6 +89,34 @@ axes[2].set_title('Raw amplitude')
 
 fig.tight_layout()
 fig.savefig(Path.joinpath(saveLoc, Path('690 nm Amplitude')), bbox_inches='tight', dpi=800)
+
+
+fig, axes = plt.subplots(3, figsize=(8, 8), num='690 nm Zoomed Amplitude')
+fig.suptitle('690 nm Amplitude')
+
+axes[0].scatter(np.arange(amp4.size), 1000 * amp4, color='darkslateblue', alpha=0.6,
+                linewidth=2, edgecolors='darkblue', label='690nm')
+axes[0].set_xlabel('Measurement #')
+axes[0].set_ylabel('Voltage(mV)')
+axes[0].set_title('Raw amplitude')
+
+axes[1].plot(100 * amp4_movingStd / amp4_movingMean, color='darkslateblue', alpha=0.6,
+             linewidth=2, label='690nm')
+axes[1].axhline(0.2, color='darkslateblue', alpha=1.0,
+                linewidth=3, linestyle=':')
+axes[1].set_ylim([0, 0.4])
+axes[1].set_xlabel('Measurement #')
+axes[1].set_ylabel('Percent')
+axes[1].set_title('Std / Mean, window size = {} '.format(windowSize))
+
+axes[2].hist(1000 * amp4, bins='fd', color='darkslateblue', alpha=0.6,
+             linewidth=2, edgecolor='darkblue', label='690 nm')
+axes[2].set_xlabel('Voltage (mV)')
+axes[2].set_ylabel('Count')
+axes[2].set_title('Raw amplitude')
+
+fig.tight_layout()
+fig.savefig(Path.joinpath(saveLoc, Path('690 nm Zoomed Amplitude')), bbox_inches='tight', dpi=800)
 
 
 #   690 nm Phase Plots
@@ -150,6 +179,38 @@ axes[2].set_title('Raw amplitude')
 
 fig.tight_layout()
 fig.savefig(Path.joinpath(saveLoc, Path('830 nm Amplitude')), bbox_inches='tight', dpi=800)
+
+
+#   830 nm Zoomed Amplitude Plots
+amp8_movingMean = rolling_apply(np.mean, amp8, windowSize)
+amp8_movingStd = rolling_apply(np.std, amp8, windowSize)
+
+fig, axes = plt.subplots(3, figsize=(8, 8), num='830 nm Zoomed Amplitude')
+fig.suptitle('830 nm Amplitude')
+
+axes[0].scatter(np.arange(amp8.size), 1000 * amp8, color='brown', alpha=0.6,
+                linewidth=2, edgecolors='darkred', label='830nm')
+axes[0].set_xlabel('Measurement #')
+axes[0].set_ylabel('Voltage(mV)')
+axes[0].set_title('Raw amplitude')
+
+axes[1].plot(100 * amp8_movingStd / amp8_movingMean, color='brown', alpha=0.6,
+             linewidth=2, label='830nm')
+axes[1].axhline(0.2, color='brown', alpha=1.0,
+                linewidth=3, linestyle=':')
+axes[1].set_ylim([0, 0.4])
+axes[1].set_xlabel('Measurement #')
+axes[1].set_ylabel('Percent')
+axes[1].set_title('Std / Mean, window size = {} '.format(windowSize))
+
+axes[2].hist(1000 * amp8, bins='fd', color='brown', alpha=0.6,
+             linewidth=2, edgecolor='darkred', label='830 nm')
+axes[2].set_xlabel('Voltage (mV)')
+axes[2].set_ylabel('Count')
+axes[2].set_title('Raw amplitude')
+
+fig.tight_layout()
+fig.savefig(Path.joinpath(saveLoc, Path('830 nm Zoomed Amplitude')), bbox_inches='tight', dpi=800)
 
 
 #   830 nm Phase Plots
