@@ -20,7 +20,7 @@ def rolling_apply(fun, a, w):
     return r
 
 
-saveLoc = Path.joinpath(Path('2022-04-22'), Path('ALL-DAY'), Path('1'))
+saveLoc = Path.joinpath(Path('2022-04-26'), Path('TEST-FOUR-LEDs-APD1'), Path('2'))
 
 amp = Path.joinpath(saveLoc, Path('amplitude.csv'))
 amp4 = []
