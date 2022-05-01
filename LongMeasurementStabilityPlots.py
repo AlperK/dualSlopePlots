@@ -7,8 +7,9 @@ import csv
 from pathlib import Path as Path
 
 
-def voltage2phase(voltage, p):
-    p[-1] = p[-1]-voltage
+def voltage2phase(phase_voltage, p):
+    # print(phase_voltage)
+    p[-1] = p[-1] - phase_voltage
     roots = np.roots(p)
     for root in roots:
         if (np.isreal(root)) and (root.real > 0) and (root.real < 180):
@@ -131,6 +132,25 @@ def plot_phase(phase, wavelength, windowed=True, window_size=5):
     fig.savefig(Path.joinpath(saveLoc, Path('{} nm Phase'.format(wavelength))), bbox_inches='tight', dpi=800)
 
 
+def read_amplitudes_from_csv(save_location, demodulator_coefficients):
+    amplitudes = np.loadtxt(Path.joinpath(save_location, Path('amplitude.csv')),
+                            skiprows=1, delimiter=',')
+    amplitudes = amplitudes / demodulator_coefficients['Amplitude Slope']
+    return amplitudes
+
+
+def read_phases_from_csv(save_location, amplitudes, demodulator_coefficients):
+    phases = np.loadtxt(Path.joinpath(save_location, Path('phase.csv')),
+                        skiprows=1, delimiter=',')
+    for i, (amplitude, phase) in enumerate(zip(amplitudes, phases)):
+        for j, (a, p) in enumerate(zip(amplitude, phase)):
+            phases[i][j] = voltage2phase(p, a * demodulator_coefficients['Phase Coefficients'])
+    return phases
+
+
+demodulator_coefficients = {'Amplitude Slope': 0.2063,
+                            'Phase Coefficients': np.array([1.6e-7, -4.3e-5, 2.6e-4, 0.2085])
+                            }
 saveLoc = Path.joinpath(Path('2022-04-26'), Path('TEST-FOUR-LEDs-APD1'), Path('1'))
 
 amp = Path.joinpath(saveLoc, Path('amplitude.csv'))
@@ -202,75 +222,18 @@ phaseDegrees8 = np.delete(phaseDegrees8, mask)
 
 windowSize = 5
 
-plot_amplitude_nsr(amp3, 690, window_size=windowSize)
-plot_phase(phaseDegrees3, 690, window_size=windowSize)
-plot_amplitude_nsr(amp7, 820, window_size=windowSize)
-plot_phase(phaseDegrees7, 820, window_size=windowSize)
 
-# #   Amplitude Ratio
-# ampRatio_movingMean = rolling_apply(np.mean, amp4 / amp8, windowSize)
-# ampRatio_movingStd = rolling_apply(np.std, amp4 / amp8, windowSize)
-#
-# fig, axes = plt.subplots(3, figsize=(8, 8), num='Amplitude Ratio')
-# fig.suptitle('Amplitude Ratio')
-#
-# axes[0].scatter(np.arange(amp8.size), amp4 / amp8, color='seagreen', alpha=0.6,
-#                 linewidth=2, edgecolors='darkgreen', label='830nm')
-# axes[0].set_xlabel('Measurement #')
-# axes[0].set_ylabel('a.u.')
-# axes[0].set_title('Raw amplitude ratio')
-#
-# axes[1].plot(100 * ampRatio_movingStd / ampRatio_movingMean, color='seagreen', alpha=0.6,
-#              linewidth=2, label='830nm')
-# axes[1].axhline(0.2, color='seagreen', alpha=1.0,
-#                 linewidth=3, linestyle=':')
-# axes[1].set_xlabel('Measurement #')
-# axes[1].set_ylabel('Percent')
-# axes[1].set_title('Std / Mean, window size = {} '.format(windowSize))
-#
-# axes[2].hist(amp4 / amp8, bins='fd', color='seagreen', alpha=0.6,
-#              linewidth=2, edgecolor='darkgreen', label='830 nm')
-# axes[2].set_xlabel('a.u.')
-# axes[2].set_ylabel('Count')
-# axes[2].set_title('Histogram')
-#
-# fig.tight_layout()
-# fig.savefig(Path.joinpath(saveLoc, Path('Amplitude Ratio')), bbox_inches='tight', dpi=800)
-#
-#
-# # Phase Differences
-# phaDiff_movingMean = rolling_apply(np.mean, phaseDegrees4 - phaseDegrees8, windowSize)
-# phaDiff_movingStd = rolling_apply(np.std, phaseDegrees4 - phaseDegrees8, windowSize)
-#
-# fig, axes = plt.subplots(3, figsize=(8, 8), num='Phase Difference')
-# fig.suptitle('Phase Difference')
-#
-# axes[0].scatter(np.arange(amp8.size), phaseDegrees4 - phaseDegrees8, color='seagreen', alpha=0.6,
-#                 linewidth=2, edgecolors='darkgreen', label='830nm')
-# axes[0].set_xlabel('Measurement #')
-# axes[0].set_ylabel('Degrees (°)')
-# axes[0].set_title('Raw Phase Difference')
-#
-# axes[1].plot(phaDiff_movingStd, color='seagreen', alpha=0.6,
-#              linewidth=2, label='830nm')
-# axes[1].axhline(0.2, color='seagreen', alpha=1.0,
-#                 linewidth=3, linestyle=':')
-# axes[1].set_xlabel('Measurement #')
-# axes[1].set_ylabel('Degrees (°)')
-# axes[1].set_title('Std, window size = {} '.format(windowSize))
-#
-# axes[2].hist(phaseDegrees4 - phaseDegrees8, bins='fd', color='seagreen', alpha=0.6,
-#              linewidth=2, edgecolor='darkgreen', label='830 nm')
-# axes[2].set_xlabel('Degrees (°)')
-# axes[2].set_ylabel('Count')
-# axes[2].set_title('Histogram')
-#
-# fig.tight_layout()
-# fig.savefig(Path.joinpath(saveLoc, Path('Phase Difference')), bbox_inches='tight', dpi=800)
+amplitudes = read_amplitudes_from_csv(saveLoc,
+                                      demodulator_coefficients=demodulator_coefficients)
+phases = read_phases_from_csv(saveLoc, amplitudes=amplitudes,
+                     demodulator_coefficients=demodulator_coefficients)
 
+plot_amplitude_nsr(amplitudes.T[3], 690, window_size=windowSize)
+plot_phase(phases.T[3], 690, window_size=windowSize)
+plot_amplitude_nsr(amplitudes.T[7], 820, window_size=windowSize)
+plot_phase(phases.T[7], 820, window_size=windowSize)
 
 plt.show()
-
 # corrcoeffAmp = np.corrcoef(amp4, amp8)
 # print(corrcoeffAmp)
 # print()
