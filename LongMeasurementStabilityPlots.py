@@ -1,5 +1,4 @@
 # TODO
-# Convert the plot code into functions for easy plot
 # Convert the csv reading code to something with 2D array for easy indexing
 
 import numpy as np
@@ -22,6 +21,114 @@ def rolling_apply(fun, a, w):
     for i in range(w - 1, a.shape[0]):
         r[i] = fun(a[(i-w+1):i+1])
     return r
+
+
+def plot_amplitude_nsr(amp, wavelength, windowed=True, window_size=5):
+    wavelength = str(wavelength)
+    if wavelength == '690':
+        color = 'darkslateblue'
+        edgecolor = 'darkblue'
+    elif wavelength == '820':
+        color = 'brown'
+        edgecolor = 'darkred'
+    else:
+        print('Wrong wavelength!')
+
+    fig, axes = plt.subplots(4, figsize=(8, 8), num='{} nm Amplitude'.format(wavelength))
+    fig.suptitle('{} nm Zoomed Amplitude'.format(wavelength))
+    if windowed:
+        mean = rolling_apply(np.mean, amp, window_size)
+        std = rolling_apply(np.std, amp, window_size)
+    else:
+        mean = np.mean(amp)
+        std = np.std(amp)
+
+    ax = axes[0]
+    ax.scatter(np.arange(amp.size), 1000 * amp,
+               color=color, alpha=0.6, linewidth=2, edgecolor=edgecolor, label='{} nm'.format(wavelength))
+    ax.set_xlabel('Measurement #')
+    ax.set_ylabel('Voltage(mV)')
+    ax.set_title('Raw amplitude')
+
+    ax = axes[1]
+    ax.hist(1000 * amp, bins='fd', color=color, alpha=0.6,
+            linewidth=2, edgecolor=edgecolor, label='{} nm'.format(wavelength))
+    ax.set_xlabel('Voltage (mV)')
+    ax.set_ylabel('Count')
+    ax.set_title('Raw amplitude')
+
+    ax = axes[2]
+    ax.plot(100 * std / mean, color=color, alpha=0.6,
+            linewidth=2, label='{} nm'.format(wavelength))
+    ax.axhline(0.2, color=color, alpha=1, linewidth=3, linestyle=':')
+    ax.set_xlabel('Measurement #')
+    ax.set_ylabel('Percent')
+    ax.set_title('Std / Mean, window size = {} '.format(window_size))
+
+    ax = axes[3]
+    ax.hist(100 * std / mean, bins='fd', color=color, alpha=0.6,
+            linewidth=2, edgecolor=edgecolor, label='{} nm'.format(wavelength))
+    ax.set_xlabel('Noise / Signal (%)')
+    ax.set_ylabel('Count')
+    ax.set_title('Window size = {}'.format(windowSize))
+
+    fig.tight_layout()
+    fig.savefig(Path.joinpath(saveLoc, Path('{} nm Amplitude'.format(wavelength))),
+                bbox_inches='tight', dpi=800)
+
+
+def plot_phase(phase, wavelength, windowed=True, window_size=5):
+    wavelength = str(wavelength)
+    if wavelength == '690':
+        color = 'darkslateblue'
+        edgecolor = 'darkblue'
+    elif wavelength == '820':
+        color = 'brown'
+        edgecolor = 'darkred'
+    else:
+        print('Wrong wavelength!')
+
+    fig, axes = plt.subplots(4, figsize=(8, 8), num='{} nm Phase'.format(wavelength))
+    fig.suptitle('{} nm Zoomed Phase'.format(wavelength))
+    if windowed:
+        mean = rolling_apply(np.mean, phase, window_size)
+        std = rolling_apply(np.std, phase, window_size)
+    else:
+        mean = np.mean(phase)
+        std = np.std(phase)
+
+    ax = axes[0]
+    ax.scatter(np.arange(phase.size), phase, color=color, alpha=0.6,
+               linewidth=2, edgecolors=edgecolor, label='{} nm'.format(wavelength))
+    ax.set_xlabel('Measurement #')
+    ax.set_ylabel('Degrees(°)')
+    ax.set_title('Raw phase')
+
+    ax = axes[1]
+    ax.hist(phase, bins='fd', color=color, alpha=0.6,
+            linewidth=2, edgecolor=edgecolor, label='{} nm'.format(wavelength))
+    ax.set_xlabel('Degrees(°)')
+    ax.set_ylabel('Count')
+    ax.set_title('Raw phase')
+
+    ax = axes[2]
+    ax.plot(std, color=color, alpha=0.6,
+            linewidth=2, label='{} nm'.format(wavelength))
+    ax.axhline(0.2, color=color, alpha=1.0,
+               linewidth=3, linestyle=':')
+    ax.set_xlabel('Measurement #')
+    ax.set_ylabel('Degrees(°)')
+    ax.set_title('Std, window size = {} '.format(window_size))
+
+    ax = axes[3]
+    ax.hist(std, bins='fd', color=color, alpha=0.6,
+            linewidth=2, edgecolor=edgecolor, label='{} nm'.format(wavelength))
+    ax.set_xlabel('Degrees(°)')
+    ax.set_ylabel('Count')
+    ax.set_title('Raw phase')
+
+    fig.tight_layout()
+    fig.savefig(Path.joinpath(saveLoc, Path('{} nm Phase'.format(wavelength))), bbox_inches='tight', dpi=800)
 
 
 saveLoc = Path.joinpath(Path('2022-04-26'), Path('TEST-FOUR-LEDs-APD1'), Path('1'))
@@ -95,210 +202,10 @@ phaseDegrees8 = np.delete(phaseDegrees8, mask)
 
 windowSize = 5
 
-#   690 nm Zoomed Amplitude Plots
-amp3_movingMean = rolling_apply(np.mean, amp3, windowSize)
-amp3_movingStd = rolling_apply(np.std, amp3, windowSize)
-amp4_movingMean = rolling_apply(np.mean, amp4, windowSize)
-amp4_movingStd = rolling_apply(np.std, amp4, windowSize)
-
-fig, axes = plt.subplots(4, figsize=(8, 8), num='690 nm Amplitude')
-fig.suptitle('690 nm Zoomed Amplitude')
-
-axes[0].scatter(np.arange(amp4.size), 1000 * amp4, color='darkslateblue', alpha=0.6,
-                linewidth=2, edgecolors='darkblue', label='690nm')
-axes[0].set_xlabel('Measurement #')
-axes[0].set_ylabel('Voltage(mV)')
-axes[0].set_title('Raw amplitude')
-
-axes[1].hist(1000 * amp4, bins='fd', color='darkslateblue', alpha=0.6,
-             linewidth=2, edgecolor='darkblue', label='690 nm')
-axes[1].set_xlabel('Voltage (mV)')
-axes[1].set_ylabel('Count')
-axes[1].set_title('Raw amplitude')
-
-axes[2].plot(100 * amp4_movingStd / amp4_movingMean, color='darkslateblue', alpha=0.6,
-             linewidth=2, label='690nm')
-axes[2].axhline(0.2, color='darkslateblue', alpha=1.0,
-                linewidth=3, linestyle=':')
-# axes[1].set_ylim([0, 0.4])
-axes[2].set_xlabel('Measurement #')
-axes[2].set_ylabel('Percent')
-axes[2].set_title('Std / Mean, window size = {} '.format(windowSize))
-
-axes[3].hist(100 * amp4_movingStd / amp4_movingMean, bins='fd', color='darkslateblue', alpha=0.6,
-             linewidth=2, edgecolor='darkblue', label='690 nm')
-axes[3].set_xlabel('Noise / Signal (%)')
-axes[3].set_ylabel('Count')
-axes[3].set_title('Window size = {}'.format(windowSize))
-
-fig.tight_layout()
-fig.savefig(Path.joinpath(saveLoc, Path('690 nm Amplitude')), bbox_inches='tight', dpi=800)
-
-
-fig, axes = plt.subplots(3, figsize=(8, 8), num='690 nm Zoomed Amplitude')
-fig.suptitle('690 nm Amplitude')
-
-axes[0].scatter(np.arange(amp4.size), 1000 * amp4, color='darkslateblue', alpha=0.6,
-                linewidth=2, edgecolors='darkblue', label='690nm')
-axes[0].set_xlabel('Measurement #')
-axes[0].set_ylabel('Voltage(mV)')
-axes[0].set_title('Raw amplitude')
-
-axes[1].plot(100 * amp4_movingStd / amp4_movingMean, color='darkslateblue', alpha=0.6,
-             linewidth=2, label='690nm')
-axes[1].axhline(0.2, color='darkslateblue', alpha=1.0,
-                linewidth=3, linestyle=':')
-axes[1].set_ylim([0, 0.4])
-axes[1].set_xlabel('Measurement #')
-axes[1].set_ylabel('Percent')
-axes[1].set_title('Std / Mean, window size = {} '.format(windowSize))
-
-axes[2].hist(1000 * amp4, bins='fd', color='darkslateblue', alpha=0.6,
-             linewidth=2, edgecolor='darkblue', label='690 nm')
-axes[2].set_xlabel('Voltage (mV)')
-axes[2].set_ylabel('Count')
-axes[2].set_title('Raw amplitude')
-
-fig.tight_layout()
-fig.savefig(Path.joinpath(saveLoc, Path('690 nm Zoomed Amplitude')), bbox_inches='tight', dpi=800)
-
-
-#   690 nm Phase Plots
-pha3_movingMean = rolling_apply(np.mean, phaseDegrees3, windowSize)
-pha3_movingStd = rolling_apply(np.std, phaseDegrees3, windowSize)
-pha4_movingMean = rolling_apply(np.mean, phaseDegrees4, windowSize)
-pha4_movingStd = rolling_apply(np.std, phaseDegrees4, windowSize)
-
-fig, axes = plt.subplots(4, figsize=(8, 8), num='690 nm Phase')
-fig.suptitle('690 nm Phase')
-
-axes[0].scatter(np.arange(phaseDegrees4.size), phaseDegrees4, color='darkslateblue', alpha=0.6,
-                linewidth=2, edgecolors='darkblue', label='690nm')
-axes[0].set_xlabel('Measurement #')
-axes[0].set_ylabel('Degrees(°)')
-axes[0].set_title('Raw phase')
-
-axes[1].hist(phaseDegrees4, bins='fd', color='darkslateblue', alpha=0.6,
-             linewidth=2, edgecolor='darkblue', label='690 nm')
-axes[1].set_xlabel('Degrees(°)')
-axes[1].set_ylabel('Count')
-axes[1].set_title('Raw phase')
-
-axes[2].plot(pha4_movingStd, color='darkslateblue', alpha=0.6,
-             linewidth=2, label='690nm')
-axes[2].axhline(0.2, color='darkslateblue', alpha=1.0,
-                linewidth=3, linestyle=':')
-axes[2].set_xlabel('Measurement #')
-axes[2].set_ylabel('Degrees(°)')
-axes[2].set_title('Std, window size = {} '.format(windowSize))
-
-axes[3].hist(pha4_movingStd, bins='fd', color='darkslateblue', alpha=0.6,
-             linewidth=2, edgecolor='darkblue', label='690 nm')
-axes[3].set_xlabel('Degrees(°)')
-axes[3].set_ylabel('Count')
-axes[3].set_title('Raw phase')
-
-fig.tight_layout()
-fig.savefig(Path.joinpath(saveLoc, Path('690 nm Phase')), bbox_inches='tight', dpi=800)
-
-
-#   830 nm Amplitude Plots
-amp7_movingMean = rolling_apply(np.mean, amp7, windowSize)
-amp7_movingStd = rolling_apply(np.std, amp7, windowSize)
-amp8_movingMean = rolling_apply(np.mean, amp8, windowSize)
-amp8_movingStd = rolling_apply(np.std, amp8, windowSize)
-
-fig, axes = plt.subplots(3, figsize=(8, 8), num='830 nm Amplitude')
-fig.suptitle('830 nm Amplitude')
-
-axes[0].scatter(np.arange(amp7.size), 1000 * amp7, color='brown', alpha=0.6,
-                linewidth=2, edgecolors='darkred', label='830nm')
-axes[0].set_xlabel('Measurement #')
-axes[0].set_ylabel('Voltage(mV)')
-axes[0].set_title('Raw amplitude')
-
-axes[1].plot(100 * amp7_movingStd / amp7_movingMean, color='brown', alpha=0.6,
-             linewidth=2, label='830nm')
-axes[1].axhline(0.2, color='brown', alpha=1.0,
-                linewidth=3, linestyle=':')
-axes[1].set_xlabel('Measurement #')
-axes[1].set_ylabel('Percent')
-axes[1].set_title('Std / Mean, window size = {} '.format(windowSize))
-
-axes[2].hist(1000 * amp7, bins='fd', color='brown', alpha=0.6,
-             linewidth=2, edgecolor='darkred', label='830 nm')
-axes[2].set_xlabel('Voltage (mV)')
-axes[2].set_ylabel('Count')
-axes[2].set_title('Raw amplitude')
-
-fig.tight_layout()
-fig.savefig(Path.joinpath(saveLoc, Path('830 nm Amplitude')), bbox_inches='tight', dpi=800)
-
-
-#   830 nm Zoomed Amplitude Plots
-amp7_movingMean = rolling_apply(np.mean, amp7, windowSize)
-amp7_movingStd = rolling_apply(np.std, amp7, windowSize)
-amp8_movingMean = rolling_apply(np.mean, amp8, windowSize)
-amp8_movingStd = rolling_apply(np.std, amp8, windowSize)
-
-fig, axes = plt.subplots(3, figsize=(8, 8), num='830 nm Zoomed Amplitude')
-fig.suptitle('830 nm Amplitude')
-
-axes[0].scatter(np.arange(amp7.size), 1000 * amp7, color='brown', alpha=0.6,
-                linewidth=2, edgecolors='darkred', label='830nm')
-axes[0].set_xlabel('Measurement #')
-axes[0].set_ylabel('Voltage(mV)')
-axes[0].set_title('Raw amplitude')
-
-axes[1].plot(100 * amp7_movingStd / amp7_movingMean, color='brown', alpha=0.6,
-             linewidth=2, label='830nm')
-axes[1].axhline(0.2, color='brown', alpha=1.0,
-                linewidth=3, linestyle=':')
-axes[1].set_ylim([0, 0.4])
-axes[1].set_xlabel('Measurement #')
-axes[1].set_ylabel('Percent')
-axes[1].set_title('Std / Mean, window size = {} '.format(windowSize))
-
-axes[2].hist(1000 * amp7, bins='fd', color='brown', alpha=0.6,
-             linewidth=2, edgecolor='darkred', label='830 nm')
-axes[2].set_xlabel('Voltage (mV)')
-axes[2].set_ylabel('Count')
-axes[2].set_title('Raw amplitude')
-
-fig.tight_layout()
-fig.savefig(Path.joinpath(saveLoc, Path('830 nm Zoomed Amplitude')), bbox_inches='tight', dpi=800)
-
-
-#   830 nm Phase Plots
-pha8_movingMean = rolling_apply(np.mean, phaseDegrees8, windowSize)
-pha8_movingStd = rolling_apply(np.std, phaseDegrees8, windowSize)
-
-fig, axes = plt.subplots(3, figsize=(8, 8), num='830 nm Phase')
-fig.suptitle('830 nm Phase')
-
-axes[0].scatter(np.arange(phaseDegrees8.size), phaseDegrees8, color='brown', alpha=0.6,
-                linewidth=2, edgecolors='darkred', label='830nm')
-axes[0].set_xlabel('Measurement #')
-axes[0].set_ylabel('Degrees(°)')
-axes[0].set_title('Raw phase')
-
-axes[1].plot(pha8_movingStd, color='brown', alpha=0.6,
-             linewidth=2, label='830nm')
-axes[1].axhline(0.2, color='brown', alpha=1.0,
-                linewidth=3, linestyle=':')
-axes[1].set_xlabel('Measurement #')
-axes[1].set_ylabel('Degrees(°)')
-axes[1].set_title('Std, window size = {} '.format(windowSize))
-
-axes[2].hist(phaseDegrees8, bins='fd', color='brown', alpha=0.6,
-             linewidth=2, edgecolor='darkred', label='830 nm')
-axes[2].set_xlabel('Degrees(°)')
-axes[2].set_ylabel('Count')
-axes[2].set_title('Raw phase')
-
-fig.tight_layout()
-fig.savefig(Path.joinpath(saveLoc, Path('830 nm Phase')), bbox_inches='tight', dpi=800)
-
+plot_amplitude_nsr(amp3, 690, window_size=windowSize)
+plot_phase(phaseDegrees3, 690, window_size=windowSize)
+plot_amplitude_nsr(amp7, 820, window_size=windowSize)
+plot_phase(phaseDegrees7, 820, window_size=windowSize)
 
 # #   Amplitude Ratio
 # ampRatio_movingMean = rolling_apply(np.mean, amp4 / amp8, windowSize)
