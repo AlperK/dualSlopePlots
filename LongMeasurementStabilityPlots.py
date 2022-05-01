@@ -1,6 +1,7 @@
 # TODO
-# Convert the csv reading code to something with 2D array for easy indexing
-
+# Add a the masking ability to delete stragglers
+# Add a ability to pass plot names
+# Add a new function for dual slope style plots
 import numpy as np
 import matplotlib.pyplot as plt
 import csv
@@ -151,87 +152,21 @@ def read_phases_from_csv(save_location, amplitudes, demodulator_coefficients):
 demodulator_coefficients = {'Amplitude Slope': 0.2063,
                             'Phase Coefficients': np.array([1.6e-7, -4.3e-5, 2.6e-4, 0.2085])
                             }
-saveLoc = Path.joinpath(Path('2022-04-26'), Path('TEST-FOUR-LEDs-APD1'), Path('1'))
-
-amp = Path.joinpath(saveLoc, Path('amplitude.csv'))
-amp3 = []
-amp4 = []
-amp7 = []
-amp8 = []
-with open(amp, newline='') as csv_file:
-    reader = csv.reader(csv_file, delimiter=',')
-    next(reader)
-    for row in reader:
-        amp7.append(float(row[1])/0.2063)
-        amp8.append(float(row[3])/0.2063)
-        amp3.append(float(row[5])/0.2063)
-        amp4.append(float(row[7])/0.2063)
-
-amp3 = np.array(amp3)
-amp4 = np.array(amp4)
-amp7 = np.array(amp7)
-amp8 = np.array(amp8)
-
-
-pha = Path.joinpath(saveLoc, Path('phase.csv'))
-pha3 = []
-pha4 = []
-pha7 = []
-pha8 = []
-with open(pha, newline='') as csv_file:
-    reader = csv.reader(csv_file, delimiter=',')
-    next(reader)
-    for row in reader:
-        pha7.append(float(row[1]))
-        pha8.append(float(row[3]))
-        pha3.append(float(row[5]))
-        pha4.append(float(row[7]))
-
-phaseDegrees3 = np.zeros_like(pha3)
-phaseDegrees4 = np.zeros_like(pha4)
-phaseDegrees7 = np.zeros_like(pha7)
-phaseDegrees8 = np.zeros_like(pha8)
-for i, amp in enumerate(amp3):
-    coefficients = 1e-3 * amp * np.array([1.6e-4, -0.043, 0.26, 208.5])
-    phaseDegrees3[i] = voltage2phase(pha3[i], coefficients)
-
-for i, amp in enumerate(amp4):
-    coefficients = 1e-3 * amp * np.array([1.6e-4, -0.043, 0.26, 208.5])
-    phaseDegrees4[i] = voltage2phase(pha4[i], coefficients)
-
-for i, amp in enumerate(amp7):
-    coefficients = 1e-3 * amp * np.array([1.6e-4, -0.043, 0.26, 208.5])
-    phaseDegrees7[i] = voltage2phase(pha7[i], coefficients)
-
-for i, amp in enumerate(amp8):
-    coefficients = 1e-3 * amp * np.array([1.6e-4, -0.043, 0.26, 208.5])
-    phaseDegrees8[i] = voltage2phase(pha8[i], coefficients)
+saveLoc = Path.joinpath(Path('2022-04-29'), Path('DUAL-SLOPE-690'), Path('2'))
 
 mask = [39, 71, 138, 167, 222, 254, 268]
-# mask = []
-
-amp3 = np.delete(amp3, mask)
-amp4 = np.delete(amp4, mask)
-phaseDegrees3 = np.delete(phaseDegrees3, mask)
-phaseDegrees4 = np.delete(phaseDegrees4, mask)
-
-amp7 = np.delete(amp7, mask)
-amp8 = np.delete(amp8, mask)
-phaseDegrees7 = np.delete(phaseDegrees7, mask)
-phaseDegrees8 = np.delete(phaseDegrees8, mask)
-
 windowSize = 5
 
 
 amplitudes = read_amplitudes_from_csv(saveLoc,
                                       demodulator_coefficients=demodulator_coefficients)
 phases = read_phases_from_csv(saveLoc, amplitudes=amplitudes,
-                     demodulator_coefficients=demodulator_coefficients)
+                              demodulator_coefficients=demodulator_coefficients)
 
-plot_amplitude_nsr(amplitudes.T[3], 690, window_size=windowSize)
-plot_phase(phases.T[3], 690, window_size=windowSize)
-plot_amplitude_nsr(amplitudes.T[7], 820, window_size=windowSize)
-plot_phase(phases.T[7], 820, window_size=windowSize)
+plot_amplitude_nsr(amplitudes.T[0], 690, window_size=windowSize)
+plot_phase(phases.T[0], 690, window_size=windowSize)
+plot_amplitude_nsr(amplitudes.T[1], 820, window_size=windowSize)
+plot_phase(phases.T[1], 820, window_size=windowSize)
 
 plt.show()
 # corrcoeffAmp = np.corrcoef(amp4, amp8)
