@@ -14,6 +14,10 @@ def line(x, a, b):
     return a*x + b
 
 
+def sine_model(x, amp, a, freq, phi, offset):
+    return amp * a * (np.sin(2*np.pi*freq*(x+90) + phi)) + offset
+
+
 def try_fit(vol, pha):
     # amp = [0.25, 0.5, 0.75, 1.0]
     amp = [2.0, 1.5, 1.0, 0.5]
@@ -43,7 +47,7 @@ def try_fit(vol, pha):
         # print(np.roots(coefficients))
 
 
-p0 = Path.joinpath(Path('2022-04-27'), Path('APD-2'), Path('PhaseCalibration'), Path('1kHz_1000mV_500mV_phase.csv'))
+p0 = Path.joinpath(Path('2022-04-27'), Path('APD-1'), Path('PhaseCalibration'), Path('1kHz_1000mV_500mV_phase.csv'))
 pha0 = []
 vol0 = []
 with open(p0, newline='') as csv_file:
@@ -52,7 +56,7 @@ with open(p0, newline='') as csv_file:
         pha0.append(int(row[0]))
         vol0.append(float(row[1])*1e3)
 
-p1 = Path.joinpath(Path('2022-04-27'), Path('APD-2'), Path('PhaseCalibration'), Path('1kHz_1000mV_1000mV_phase.csv'))
+p1 = Path.joinpath(Path('2022-04-27'), Path('APD-1'), Path('PhaseCalibration'), Path('1kHz_1000mV_1000mV_phase.csv'))
 pha1 = []
 vol1 = []
 with open(p1, newline='') as csv_file:
@@ -61,7 +65,7 @@ with open(p1, newline='') as csv_file:
         pha1.append(int(row[0]))
         vol1.append(float(row[1])*1e3)
 
-p2 = Path.joinpath(Path('2022-04-27'), Path('APD-2'), Path('PhaseCalibration'), Path('1kHz_1000mV_1500mV_phase.csv'))
+p2 = Path.joinpath(Path('2022-04-27'), Path('APD-1'), Path('PhaseCalibration'), Path('1kHz_1000mV_1500mV_phase.csv'))
 pha2 = []
 vol2 = []
 with open(p2, newline='') as csv_file:
@@ -70,7 +74,7 @@ with open(p2, newline='') as csv_file:
         pha2.append(int(row[0]))
         vol2.append(float(row[1])*1e3)
 
-p3 = Path.joinpath(Path('2022-04-27'), Path('APD-2'), Path('PhaseCalibration'), Path('1kHz_1000mV_2000mV_phase.csv'))
+p3 = Path.joinpath(Path('2022-04-27'), Path('APD-1'), Path('PhaseCalibration'), Path('1kHz_1000mV_2000mV_phase.csv'))
 pha3 = []
 vol3 = []
 with open(p3, newline='') as csv_file:
@@ -79,7 +83,7 @@ with open(p3, newline='') as csv_file:
         pha3.append(int(row[0]))
         vol3.append(float(row[1])*1e3)
 
-a0 = Path.joinpath(Path('2022-04-27'), Path('APD-2'), Path('AmplitudeCalibration'), Path('1kHz_amplitude.csv'))
+a0 = Path.joinpath(Path('2022-04-27'), Path('APD-1'), Path('AmplitudeCalibration'), Path('1kHz_amplitude.csv'))
 amp0 = []
 a_vol0 = []
 with open(a0, newline='') as csv_file:
@@ -88,7 +92,7 @@ with open(a0, newline='') as csv_file:
         amp0.append(int(row[0]))
         a_vol0.append(float(row[1])*1e3)
 
-a1 = Path.joinpath(Path('2022-04-27'), Path('APD-2'), Path('AmplitudeCalibration'), Path('4kHz_amplitude.csv'))
+a1 = Path.joinpath(Path('2022-04-27'), Path('APD-1'), Path('AmplitudeCalibration'), Path('4kHz_amplitude.csv'))
 amp1 = []
 a_vol1 = []
 with open(a1, newline='') as csv_file:
@@ -97,7 +101,7 @@ with open(a1, newline='') as csv_file:
         amp1.append(int(row[0]))
         a_vol1.append(float(row[1])*1e3)
 
-a2 = Path.joinpath(Path('2022-04-27'), Path('APD-2'), Path('AmplitudeCalibration'), Path('7kHz_amplitude.csv'))
+a2 = Path.joinpath(Path('2022-04-27'), Path('APD-1'), Path('AmplitudeCalibration'), Path('7kHz_amplitude.csv'))
 amp2 = []
 a_vol2 = []
 with open(a2, newline='') as csv_file:
@@ -106,7 +110,7 @@ with open(a2, newline='') as csv_file:
         amp2.append(int(row[0]))
         a_vol2.append(float(row[1])*1e3)
 
-a3 = Path.joinpath(Path('2022-04-27'), Path('APD-2'), Path('AmplitudeCalibration'), Path('10kHz_amplitude.csv'))
+a3 = Path.joinpath(Path('2022-04-27'), Path('APD-1'), Path('AmplitudeCalibration'), Path('10kHz_amplitude.csv'))
 amp3 = []
 a_vol3 = []
 with open(a3, newline='') as csv_file:
@@ -166,11 +170,73 @@ result5 = lmodel.fit(a_vol0, params, x=amp0)
 result6 = lmodel.fit(a_vol1, params, x=amp1)
 result7 = lmodel.fit(a_vol2, params, x=amp2)
 result8 = lmodel.fit(a_vol3, params, x=amp3)
-print(result5.fit_report())
-print(result6.fit_report())
-print(result7.fit_report())
-print(result8.fit_report())
+# print(result5.fit_report())
+# print(result6.fit_report())
+# print(result7.fit_report())
+# print(result8.fit_report())
 
+smodel = Model(sine_model)
+params = smodel.make_params(amp=0.5, a=201, freq=2.77e-3, phi=0, offset=-1)
+params['amp'].vary = False
+params['a'].vary = False
+params['freq'].vary = False
+params['phi'].vary = False
+# params['offset'].vary = False
+
+sine1 = smodel.fit(vol0, params, method='leastsq', x=pha0)
+params = smodel.make_params(amp=1.0, a=201, freq=2.77e-3, phi=0, offset=-1)
+params['amp'].vary = False
+params['a'].vary = False
+params['freq'].vary = False
+params['phi'].vary = False
+# params['offset'].vary = False
+
+sine2 = smodel.fit(vol1, params, method='leastsq', x=pha0)
+params = smodel.make_params(amp=1.5, a=201, freq=2.77e-3, phi=0, offset=-1)
+params['amp'].vary = False
+params['a'].vary = False
+params['freq'].vary = False
+params['phi'].vary = False
+# params['offset'].vary = False
+
+sine3 = smodel.fit(vol2, params, method='leastsq', x=pha0)
+params = smodel.make_params(amp=2.0, a=201, freq=2.77e-3, phi=0, offset=-1)
+params['amp'].vary = False
+params['a'].vary = False
+params['freq'].vary = False
+params['phi'].vary = False
+# params['offset'].vary = False
+
+sine4 = smodel.fit(vol3, params, method='leastsq', x=pha0)
+params = smodel.make_params(amp=2.0, a=201, freq=2.77e-3, phi=0, offset=-1)
+params['amp'].vary = False
+params['a'].vary = False
+params['freq'].vary = False
+params['phi'].vary = False
+# params['offset'].vary = False
+
+print(sine1.fit_report())
+print(sine2.fit_report())
+print(sine3.fit_report())
+print(sine4.fit_report())
+
+plt.figure(figsize=(6, 6))
+plt.scatter(pha0, vol0, s=15, label=r'$V_{sig} = 500 mV$')
+plt.scatter(pha0, vol1, s=15, label=r'$V_{sig} = 1000 mV$')
+plt.scatter(pha0, vol2, s=15, label=r'$V_{sig} = 1500 mV$')
+plt.scatter(pha0, vol3, s=15, label=r'$V_{sig} = 2000 mV$')
+plt.scatter(pha0, sine_model(np.array([pha0]), amp=0.5, a=201, freq=0.00278, phi=0, offset=1.4), s=1, c='k',
+            label='SINE-FIT-0.5')
+plt.scatter(pha0, sine_model(np.array([pha0]), amp=1.0, a=201, freq=0.00278, phi=0, offset=1.4), s=1, c='k',
+            label='SINE-FIT-1.0')
+plt.scatter(pha0, sine_model(np.array([pha0]), amp=1.5, a=201, freq=0.00278, phi=0, offset=1.4), s=1, c='k',
+            label='SINE-FIT-1.5')
+plt.scatter(pha0, sine_model(np.array([pha0]), amp=2.0, a=201, freq=0.00278, phi=0, offset=1.4), s=1, c='k',
+            label='SINE-FIT-2.0')
+# plt.scatter(pha0, sine_model(np.array([pha0]), amp=0.5, a=209, freq=0.00278, phi=0, offset=1.1), s=1, c='k', label='FIT-0.5')
+# plt.scatter(pha0, sine_model(np.array([pha0]), amp=1.0, a=209, freq=0.00278, phi=0, offset=1.1), s=1, c='k', label='FIT-1.0')
+# plt.scatter(pha0, sine_model(np.array([pha0]), amp=1.5, a=209, freq=0.00278, phi=0, offset=1.1), s=1, c='k', label='FIT-1.5')
+# plt.scatter(pha0, sine_model(np.array([pha0]), amp=2.0, a=209, freq=0.00278, phi=0, offset=1.1), s=1, c='k', label='FIT-2.0')
 
 # Phase Plot
 plt.figure(figsize=(6, 6))
@@ -199,10 +265,11 @@ plt.scatter(amp1, a_vol1, s=5, label=r'4 kHz')
 plt.scatter(amp2, a_vol2, s=5, label=r'7 kHz')
 plt.scatter(amp3, a_vol3, s=5, label=r'10 kHz')
 
-plt.scatter(amp0, line(np.array([amp0]), 0.2063, 0), s=1, c='k', label='FIT-1kHz')
-plt.scatter(amp1, line(np.array([amp1]), 0.2063, 0), s=1, c='k', label='FIT-4kHz')
-plt.scatter(amp2, line(np.array([amp2]), 0.2063, 0), s=1, c='k', label='FIT-7kHz')
-plt.scatter(amp3, line(np.array([amp3]), 0.2063, 0), s=1, c='k', label='FIT-10kHz')
+# plt.scatter(amp0, line(np.array([amp0]), 0.2063, 0), s=1, c='k', label='FIT-1kHz')
+plt.scatter(amp0, line(np.array([amp0]), 0.2063 * (201/209), 0), s=1, c='k', label='FIT-1kHz')
+plt.scatter(amp1, line(np.array([amp1]), 0.2063 * (201/209), 0), s=1, c='k', label='FIT-4kHz')
+plt.scatter(amp2, line(np.array([amp2]), 0.2063 * (201/209), 0), s=1, c='k', label='FIT-7kHz')
+plt.scatter(amp3, line(np.array([amp3]), 0.2063 * (201/209), 0), s=1, c='k', label='FIT-10kHz')
 
 plt.title('Amplitude calibration')
 plt.legend()
