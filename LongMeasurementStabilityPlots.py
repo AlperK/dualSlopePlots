@@ -25,7 +25,7 @@ def rolling_apply(fun, a, w):
     return r
 
 
-def plot_amplitude_nsr(amp, wavelength, windowed=True, window_size=5):
+def plot_amplitude_nsr(amp, wavelength, windowed=True, window_size=5, title=None):
     wavelength = str(wavelength)
     if wavelength == '690':
         color = 'darkslateblue'
@@ -36,8 +36,8 @@ def plot_amplitude_nsr(amp, wavelength, windowed=True, window_size=5):
     else:
         print('Wrong wavelength!')
 
-    fig, axes = plt.subplots(4, figsize=(8, 8), num='{} nm Amplitude'.format(wavelength))
-    fig.suptitle('{} nm Zoomed Amplitude'.format(wavelength))
+    fig, axes = plt.subplots(4, figsize=(8, 8), num='{} {} nm Amplitude'.format(title, wavelength))
+    fig.suptitle('{} {} nm Zoomed Amplitude'.format(title, wavelength))
     if windowed:
         mean = rolling_apply(np.mean, amp, window_size)
         std = rolling_apply(np.std, amp, window_size)
@@ -75,11 +75,11 @@ def plot_amplitude_nsr(amp, wavelength, windowed=True, window_size=5):
     ax.set_title('Window size = {}'.format(windowSize))
 
     fig.tight_layout()
-    fig.savefig(Path.joinpath(saveLoc, Path('{} nm Amplitude'.format(wavelength))),
+    fig.savefig(Path.joinpath(saveLoc, Path('{} {} nm Amplitude'.format(title, wavelength))),
                 bbox_inches='tight', dpi=800)
 
 
-def plot_phase(phase, wavelength, windowed=True, window_size=5):
+def plot_phase(phase, wavelength, windowed=True, window_size=5, title=None):
     wavelength = str(wavelength)
     if wavelength == '690':
         color = 'darkslateblue'
@@ -90,8 +90,8 @@ def plot_phase(phase, wavelength, windowed=True, window_size=5):
     else:
         print('Wrong wavelength!')
 
-    fig, axes = plt.subplots(4, figsize=(8, 8), num='{} nm Phase'.format(wavelength))
-    fig.suptitle('{} nm Zoomed Phase'.format(wavelength))
+    fig, axes = plt.subplots(4, figsize=(8, 8), num='{} {} nm Phase'.format(title, wavelength))
+    fig.suptitle('{} {} nm Zoomed Phase'.format(title, wavelength))
     if windowed:
         mean = rolling_apply(np.mean, phase, window_size)
         std = rolling_apply(np.std, phase, window_size)
@@ -130,7 +130,7 @@ def plot_phase(phase, wavelength, windowed=True, window_size=5):
     ax.set_title('Raw phase')
 
     fig.tight_layout()
-    fig.savefig(Path.joinpath(saveLoc, Path('{} nm Phase'.format(wavelength))), bbox_inches='tight', dpi=800)
+    fig.savefig(Path.joinpath(saveLoc, Path('{} {} nm Phase'.format(title, wavelength))), bbox_inches='tight', dpi=800)
 
 
 def read_amplitudes_from_csv(save_location, demodulator_coefficients):
@@ -149,24 +149,32 @@ def read_phases_from_csv(save_location, amplitudes, demodulator_coefficients):
     return phases
 
 
-demodulator_coefficients = {'Amplitude Slope': 0.2063,
+demodulator1Coefficients = {'Amplitude Slope': 0.2063,
                             'Phase Coefficients': np.array([1.6e-7, -4.3e-5, 2.6e-4, 0.2085])
                             }
-saveLoc = Path.joinpath(Path('2022-04-29'), Path('DUAL-SLOPE-690'), Path('2'))
+demodulator2Coefficients = {'Amplitude Slope': 0.2063,
+                            'Phase Coefficients': np.array([1.6e-7, -4.3e-5, 2.6e-4, 0.2085])
+                            }
+saveLoc = Path.joinpath(Path('2022-04-29'), Path('DUAL-SLOPE-690'), Path('3'))
 
 mask = [39, 71, 138, 167, 222, 254, 268]
 windowSize = 5
 
 
 amplitudes = read_amplitudes_from_csv(saveLoc,
-                                      demodulator_coefficients=demodulator_coefficients)
+                                      demodulator_coefficients=demodulator1Coefficients)
 phases = read_phases_from_csv(saveLoc, amplitudes=amplitudes,
-                              demodulator_coefficients=demodulator_coefficients)
+                              demodulator_coefficients=demodulator1Coefficients)
 
-plot_amplitude_nsr(amplitudes.T[0], 690, window_size=windowSize)
-plot_phase(phases.T[0], 690, window_size=windowSize)
-plot_amplitude_nsr(amplitudes.T[1], 820, window_size=windowSize)
-plot_phase(phases.T[1], 820, window_size=windowSize)
+plot_amplitude_nsr(amplitudes.T[4], 690, window_size=windowSize, title='Laser 1 APD 1')
+plot_phase(phases.T[4], 690, window_size=windowSize, title='Laser 1 APD 1')
+plot_amplitude_nsr(amplitudes.T[5], 690, window_size=windowSize, title='Laser 1 APD 2')
+plot_phase(phases.T[5], 690, window_size=windowSize, title='Laser 1 APD 2')
+
+# plot_amplitude_nsr(amplitudes.T[6], 690, window_size=windowSize, title='Laser 2 APD 1')
+# plot_phase(phases.T[6], 690, window_size=windowSize, title='Laser 2 APD 1')
+plot_amplitude_nsr(amplitudes.T[7], 690, window_size=windowSize, title='Laser 2 APD 2')
+plot_phase(phases.T[7], 690, window_size=windowSize, title='Laser 2 APD 2')
 
 plt.show()
 # corrcoeffAmp = np.corrcoef(amp4, amp8)
