@@ -68,7 +68,7 @@ def plot_amplitude_nsr(amp, wavelength, windowed=True, window_size=5, title=None
     ax.set_title('Std / Mean, window size = {} '.format(window_size))
 
     ax = axes[3]
-    ax.hist(100 * std / mean, bins='fd', color=color, alpha=0.6,
+    ax.hist(100 * std / mean, color=color, alpha=0.6,
             linewidth=2, edgecolor=edgecolor, label='{} nm'.format(wavelength))
     ax.set_xlabel('Noise / Signal (%)')
     ax.set_ylabel('Count')
@@ -155,7 +155,7 @@ demodulator1Coefficients = {'Amplitude Slope': 0.2063,
 demodulator2Coefficients = {'Amplitude Slope': 0.2063,
                             'Phase Coefficients': np.array([1.6e-7, -4.3e-5, 2.6e-4, 0.2085])
                             }
-saveLoc = Path.joinpath(Path('2022-04-29'), Path('DUAL-SLOPE-690'), Path('3'))
+saveLoc = Path.joinpath(Path('2022-05-09'), Path('DUAL-SLOPE-690'), Path('2'))
 
 mask = [39, 71, 138, 167, 222, 254, 268]
 windowSize = 5
@@ -167,14 +167,14 @@ phases = read_phases_from_csv(saveLoc, amplitudes=amplitudes,
                               demodulator_coefficients=demodulator1Coefficients)
 
 plot_amplitude_nsr(amplitudes.T[4], 690, window_size=windowSize, title='Laser 1 APD 1')
-plot_phase(phases.T[4], 690, window_size=windowSize, title='Laser 1 APD 1')
-plot_amplitude_nsr(amplitudes.T[5], 690, window_size=windowSize, title='Laser 1 APD 2')
-plot_phase(phases.T[5], 690, window_size=windowSize, title='Laser 1 APD 2')
+# plot_phase(phases.T[4], 690, window_size=windowSize, title='Laser 1 APD 1')
+# plot_amplitude_nsr(amplitudes.T[1], 690, window_size=windowSize, title='Laser 1 APD 2')
+# plot_phase(phases.T[1], 690, window_size=windowSize, title='Laser 1 APD 2')
 
 # plot_amplitude_nsr(amplitudes.T[6], 690, window_size=windowSize, title='Laser 2 APD 1')
 # plot_phase(phases.T[6], 690, window_size=windowSize, title='Laser 2 APD 1')
-plot_amplitude_nsr(amplitudes.T[7], 690, window_size=windowSize, title='Laser 2 APD 2')
-plot_phase(phases.T[7], 690, window_size=windowSize, title='Laser 2 APD 2')
+# plot_amplitude_nsr(amplitudes.T[7], 690, window_size=windowSize, title='Laser 2 APD 2')
+# plot_phase(phases.T[7], 690, window_size=windowSize, title='Laser 2 APD 2')
 
 plt.show()
 # corrcoeffAmp = np.corrcoef(amp4, amp8)
