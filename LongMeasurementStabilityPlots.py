@@ -9,12 +9,18 @@ from pathlib import Path as Path
 
 
 def voltage2phase(phase_voltage, p):
-    # print(phase_voltage)
     p[-1] = p[-1] - phase_voltage
     roots = np.roots(p)
     for root in roots:
         if (np.isreal(root)) and (root.real > 0) and (root.real < 180):
             return root
+
+
+def voltage2phase4sine(phase_voltage, p):
+    x = (phase_voltage - p[3]) / (p[0] * p[1])
+    y = np.arcsin(x)
+    phase = (y / (2 * np.pi * p[2])) - 90
+    return phase
 
 
 def rolling_apply(fun, a, w):
@@ -68,7 +74,7 @@ def plot_amplitude_nsr(amp, wavelength, windowed=True, window_size=5, title=None
     ax.set_title('Std / Mean, window size = {} '.format(window_size))
 
     ax = axes[3]
-    ax.hist(100 * std / mean, color=color, alpha=0.6,
+    ax.hist(100 * std / mean, color=color, alpha=0.6, bins='fd',
             linewidth=2, edgecolor=edgecolor, label='{} nm'.format(wavelength))
     ax.set_xlabel('Noise / Signal (%)')
     ax.set_ylabel('Count')
@@ -107,7 +113,7 @@ def plot_phase(phase, wavelength, windowed=True, window_size=5, title=None):
     ax.set_title('Raw phase')
 
     ax = axes[1]
-    ax.hist(phase, bins='fd', color=color, alpha=0.6,
+    ax.hist(phase, color=color, alpha=0.6, bins='fd',
             linewidth=2, edgecolor=edgecolor, label='{} nm'.format(wavelength))
     ax.set_xlabel('Degrees(°)')
     ax.set_ylabel('Count')
@@ -146,16 +152,18 @@ def read_phases_from_csv(save_location, amplitudes, demodulator_coefficients):
     for i, (amplitude, phase) in enumerate(zip(amplitudes, phases)):
         for j, (a, p) in enumerate(zip(amplitude, phase)):
             phases[i][j] = voltage2phase(p, a * demodulator_coefficients['Phase Coefficients'])
+            # phases[i][j] = voltage2phase4sine(1000*p, [a, 201, 0.00278, 1.4])
+            print(f'index {j}, Phase {phases[i][j]}, Amplitude {a}, PhaseV {p}')
     return phases
 
 
-demodulator1Coefficients = {'Amplitude Slope': 0.2063,
+demodulator1Coefficients = {'Amplitude Slope': 0.280,
                             'Phase Coefficients': np.array([1.6e-7, -4.3e-5, 2.6e-4, 0.2085])
                             }
-demodulator2Coefficients = {'Amplitude Slope': 0.2063,
+demodulator2Coefficients = {'Amplitude Slope': 0.294,
                             'Phase Coefficients': np.array([1.6e-7, -4.3e-5, 2.6e-4, 0.2085])
                             }
-saveLoc = Path.joinpath(Path('2022-05-09'), Path('DUAL-SLOPE-690'), Path('2'))
+saveLoc = Path.joinpath(Path('2022-05-10'), Path('DUAL-SLOPE-690'), Path('1'))
 
 mask = [39, 71, 138, 167, 222, 254, 268]
 windowSize = 5
@@ -166,8 +174,8 @@ amplitudes = read_amplitudes_from_csv(saveLoc,
 phases = read_phases_from_csv(saveLoc, amplitudes=amplitudes,
                               demodulator_coefficients=demodulator1Coefficients)
 
-plot_amplitude_nsr(amplitudes.T[4], 690, window_size=windowSize, title='Laser 1 APD 1')
-# plot_phase(phases.T[4], 690, window_size=windowSize, title='Laser 1 APD 1')
+plot_amplitude_nsr(amplitudes.T[7], 690, window_size=windowSize, title='Laser 1 APD 1')
+plot_phase(phases.T[7], 690, window_size=windowSize, title='Laser 1 APD 1')
 # plot_amplitude_nsr(amplitudes.T[1], 690, window_size=windowSize, title='Laser 1 APD 2')
 # plot_phase(phases.T[1], 690, window_size=windowSize, title='Laser 1 APD 2')
 
