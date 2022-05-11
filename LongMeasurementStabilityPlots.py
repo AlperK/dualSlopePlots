@@ -74,7 +74,7 @@ def plot_amplitude_nsr(amp, wavelength, windowed=True, window_size=5, title=None
     ax.set_title('Std / Mean, window size = {} '.format(window_size))
 
     ax = axes[3]
-    ax.hist(100 * std / mean, color=color, alpha=0.6, bins='fd',
+    ax.hist(100 * std / mean, color=color, alpha=0.6,
             linewidth=2, edgecolor=edgecolor, label='{} nm'.format(wavelength))
     ax.set_xlabel('Noise / Signal (%)')
     ax.set_ylabel('Count')
@@ -151,8 +151,8 @@ def read_phases_from_csv(save_location, amplitudes, demodulator_coefficients):
                         skiprows=1, delimiter=',')
     for i, (amplitude, phase) in enumerate(zip(amplitudes, phases)):
         for j, (a, p) in enumerate(zip(amplitude, phase)):
-            phases[i][j] = voltage2phase(p, a * demodulator_coefficients['Phase Coefficients'])
-            # phases[i][j] = voltage2phase4sine(1000*p, [a, 201, 0.00278, 1.4])
+            # phases[i][j] = voltage2phase(p, a * demodulator_coefficients['Phase Coefficients'])
+            phases[i][j] = voltage2phase4sine(1000*p, [a, 201, 0.00278, 1.4])
             print(f'index {j}, Phase {phases[i][j]}, Amplitude {a}, PhaseV {p}')
     return phases
 
@@ -163,7 +163,7 @@ demodulator1Coefficients = {'Amplitude Slope': 0.280,
 demodulator2Coefficients = {'Amplitude Slope': 0.294,
                             'Phase Coefficients': np.array([1.6e-7, -4.3e-5, 2.6e-4, 0.2085])
                             }
-saveLoc = Path.joinpath(Path('2022-05-10'), Path('DUAL-SLOPE-690'), Path('1'))
+saveLoc = Path.joinpath(Path('2022-05-11'), Path('DUAL-SLOPE-690'), Path('1'))
 
 mask = [39, 71, 138, 167, 222, 254, 268]
 windowSize = 5
@@ -174,8 +174,8 @@ amplitudes = read_amplitudes_from_csv(saveLoc,
 phases = read_phases_from_csv(saveLoc, amplitudes=amplitudes,
                               demodulator_coefficients=demodulator1Coefficients)
 
-plot_amplitude_nsr(amplitudes.T[7], 690, window_size=windowSize, title='Laser 1 APD 1')
-plot_phase(phases.T[7], 690, window_size=windowSize, title='Laser 1 APD 1')
+plot_amplitude_nsr(amplitudes.T[5], 690, window_size=windowSize, title='Laser 1 APD 1')
+plot_phase(phases.T[5], 690, window_size=windowSize, title='Laser 1 APD 1')
 # plot_amplitude_nsr(amplitudes.T[1], 690, window_size=windowSize, title='Laser 1 APD 2')
 # plot_phase(phases.T[1], 690, window_size=windowSize, title='Laser 1 APD 2')
 
