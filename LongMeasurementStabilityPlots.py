@@ -164,10 +164,10 @@ demodulator1Coefficients = {'Amplitude Slope': 0.2063,
 demodulator2Coefficients = {'Amplitude Slope': 0.2063,
                             'Phase Coefficients': np.array([1.6e-7, -4.3e-5, 2.6e-4, 0.2085])
                             }
-saveLoc = Path.joinpath(Path('2022-05-10'), Path('DUAL-SLOPE-690'), Path('1'))
+saveLoc = Path.joinpath(Path('2022-05-12'), Path('DUAL-SLOPE-690'), Path('2 (1)'))
 
 mask = [39, 71, 138, 167, 222, 254, 268]
-windowSize = 10
+windowSize = 5
 
 
 amplitudes = read_amplitudes_from_csv(saveLoc,
@@ -198,5 +198,5 @@ plt.show()
 
 # corrcoeffPha = ma.corrcoef([ma.masked_invalid(phases.T[4]), ma.masked_invalid(phases.T[5]),
 #                             ma.masked_invalid(phases.T[6]), ma.masked_invalid(phases.T[7])])
-# print(corrcoeffPha)
-# print()
+print(corrcoeffPha)
+print()
