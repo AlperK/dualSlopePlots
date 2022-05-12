@@ -3,6 +3,7 @@
 # Add a ability to pass plot names
 # Add a new function for dual slope style plots
 import numpy as np
+import numpy.ma as ma
 import matplotlib.pyplot as plt
 import csv
 from pathlib import Path as Path
@@ -20,7 +21,7 @@ def voltage2phase4sine(phase_voltage, p):
     x = (phase_voltage - p[3]) / (p[0] * p[1])
     y = np.arcsin(x)
     phase = (y / (2 * np.pi * p[2])) - 90
-    return phase
+    return -phase
 
 
 def rolling_apply(fun, a, w):
@@ -74,7 +75,7 @@ def plot_amplitude_nsr(amp, wavelength, windowed=True, window_size=5, title=None
     ax.set_title('Std / Mean, window size = {} '.format(window_size))
 
     ax = axes[3]
-    ax.hist(100 * std / mean, color=color, alpha=0.6,
+    ax.hist(100 * std / mean, color=color, alpha=0.6, bins='fd',
             linewidth=2, edgecolor=edgecolor, label='{} nm'.format(wavelength))
     ax.set_xlabel('Noise / Signal (%)')
     ax.set_ylabel('Count')
@@ -157,16 +158,16 @@ def read_phases_from_csv(save_location, amplitudes, demodulator_coefficients):
     return phases
 
 
-demodulator1Coefficients = {'Amplitude Slope': 0.280,
+demodulator1Coefficients = {'Amplitude Slope': 0.2063,
                             'Phase Coefficients': np.array([1.6e-7, -4.3e-5, 2.6e-4, 0.2085])
                             }
-demodulator2Coefficients = {'Amplitude Slope': 0.294,
+demodulator2Coefficients = {'Amplitude Slope': 0.2063,
                             'Phase Coefficients': np.array([1.6e-7, -4.3e-5, 2.6e-4, 0.2085])
                             }
-saveLoc = Path.joinpath(Path('2022-05-11'), Path('DUAL-SLOPE-690'), Path('1'))
+saveLoc = Path.joinpath(Path('2022-05-10'), Path('DUAL-SLOPE-690'), Path('1'))
 
 mask = [39, 71, 138, 167, 222, 254, 268]
-windowSize = 5
+windowSize = 10
 
 
 amplitudes = read_amplitudes_from_csv(saveLoc,
@@ -174,25 +175,28 @@ amplitudes = read_amplitudes_from_csv(saveLoc,
 phases = read_phases_from_csv(saveLoc, amplitudes=amplitudes,
                               demodulator_coefficients=demodulator1Coefficients)
 
-plot_amplitude_nsr(amplitudes.T[5], 690, window_size=windowSize, title='Laser 1 APD 1')
-plot_phase(phases.T[5], 690, window_size=windowSize, title='Laser 1 APD 1')
-# plot_amplitude_nsr(amplitudes.T[1], 690, window_size=windowSize, title='Laser 1 APD 2')
-# plot_phase(phases.T[1], 690, window_size=windowSize, title='Laser 1 APD 2')
+plot_amplitude_nsr(amplitudes.T[4], 690, window_size=windowSize, title='Laser 1 APD 1')
+plot_phase(phases.T[4], 690, window_size=windowSize, title='Laser 1 APD 1')
+plot_amplitude_nsr(amplitudes.T[5], 690, window_size=windowSize, title='Laser 1 APD 2')
+plot_phase(phases.T[5], 690, window_size=windowSize, title='Laser 1 APD 2')
 
-# plot_amplitude_nsr(amplitudes.T[6], 690, window_size=windowSize, title='Laser 2 APD 1')
-# plot_phase(phases.T[6], 690, window_size=windowSize, title='Laser 2 APD 1')
-# plot_amplitude_nsr(amplitudes.T[7], 690, window_size=windowSize, title='Laser 2 APD 2')
-# plot_phase(phases.T[7], 690, window_size=windowSize, title='Laser 2 APD 2')
+plot_amplitude_nsr(amplitudes.T[6], 690, window_size=windowSize, title='Laser 2 APD 1')
+plot_phase(phases.T[6], 690, window_size=windowSize, title='Laser 2 APD 1')
+plot_amplitude_nsr(amplitudes.T[7], 690, window_size=windowSize, title='Laser 2 APD 2')
+plot_phase(phases.T[7], 690, window_size=windowSize, title='Laser 2 APD 2')
 
+
+# plot_amplitude_nsr(amplitudes.T[4] / amplitudes.T[5], 690, window_size=windowSize, title='Laser 1 APD 1 APD 2')
+# plot_amplitude_nsr(amplitudes.T[7] / amplitudes.T[6], 690, window_size=windowSize, title='Laser 2 APD 1 APD 2')
+# plot_amplitude_nsr((amplitudes.T[4] / amplitudes.T[5]) / (amplitudes.T[7] / amplitudes.T[6]), 690,
+#                    window_size=windowSize, title='Laser 1 2 APD 1 APD 2')
+# plot_phase(phases.T[4] - phases.T[5], 690, window_size=windowSize, title='Laser 1 APD 1 APD 2')
+# plot_phase(phases.T[7] - phases.T[6], 690, window_size=windowSize, title='Laser 2 APD 1 APD 2')
+# plot_phase((phases.T[4] - phases.T[5]) - (phases.T[7] - phases.T[6]), 690,
+#            window_size=windowSize, title='Laser 1 2 APD 1 APD 2')
 plt.show()
-# corrcoeffAmp = np.corrcoef(amp4, amp8)
-# print(corrcoeffAmp)
-# print()
-# corrcoeffPha = np.corrcoef(phaseDegrees4, phaseDegrees8)
+
+# corrcoeffPha = ma.corrcoef([ma.masked_invalid(phases.T[4]), ma.masked_invalid(phases.T[5]),
+#                             ma.masked_invalid(phases.T[6]), ma.masked_invalid(phases.T[7])])
 # print(corrcoeffPha)
 # print()
-# corrcoeffAmpPha690 = np.corrcoef(amp4, phaseDegrees4)
-# print(corrcoeffAmpPha690)
-# print()
-# corrcoeffAmpPha830 = np.corrcoef(amp8, phaseDegrees8)
-# print(corrcoeffAmpPha830)
