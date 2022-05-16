@@ -153,18 +153,18 @@ def read_phases_from_csv(save_location, amplitudes, demodulator_coefficients):
     for i, (amplitude, phase) in enumerate(zip(amplitudes, phases)):
         for j, (a, p) in enumerate(zip(amplitude, phase)):
             # phases[i][j] = voltage2phase(p, a * demodulator_coefficients['Phase Coefficients'])
-            phases[i][j] = voltage2phase4sine(1000*p, [a, 201, 0.00278, 1.4])
+            phases[i][j] = voltage2phase4sine(1000*p, [a, 303, 0.00277, -0.3])
             print(f'index {j}, Phase {phases[i][j]}, Amplitude {a}, PhaseV {p}')
     return phases
 
 
-demodulator1Coefficients = {'Amplitude Slope': 0.2063,
+demodulator1Coefficients = {'Amplitude Slope': 0.3011,
                             'Phase Coefficients': np.array([1.6e-7, -4.3e-5, 2.6e-4, 0.2085])
                             }
-demodulator2Coefficients = {'Amplitude Slope': 0.2063,
+demodulator2Coefficients = {'Amplitude Slope': 0.3011,
                             'Phase Coefficients': np.array([1.6e-7, -4.3e-5, 2.6e-4, 0.2085])
                             }
-saveLoc = Path.joinpath(Path('2022-05-12'), Path('DUAL-SLOPE-690'), Path('2 (1)'))
+saveLoc = Path.joinpath(Path('2022-05-16'), Path('DUAL-SLOPE-690'), Path('4'))
 
 mask = [39, 71, 138, 167, 222, 254, 268]
 windowSize = 5
