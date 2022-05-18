@@ -158,6 +158,10 @@ def read_phases_from_csv(save_location, amplitudes, demodulator_coefficients):
     return phases
 
 
+def linearize_intensity(amplitude, separation):
+    return np.log(separation**2 * amplitude)
+
+
 demodulator1Coefficients = {'Amplitude Slope': 0.3011,
                             'Phase Coefficients': np.array([1.6e-7, -4.3e-5, 2.6e-4, 0.2085])
                             }
@@ -179,7 +183,7 @@ plot_amplitude_nsr(amplitudes.T[4], 690, window_size=windowSize, title='Laser 1 
 plot_phase(phases.T[4], 690, window_size=windowSize, title='Laser 1 APD 1')
 plot_amplitude_nsr(amplitudes.T[5], 690, window_size=windowSize, title='Laser 1 APD 2')
 plot_phase(phases.T[5], 690, window_size=windowSize, title='Laser 1 APD 2')
-
+#
 plot_amplitude_nsr(amplitudes.T[6], 690, window_size=windowSize, title='Laser 2 APD 1')
 plot_phase(phases.T[6], 690, window_size=windowSize, title='Laser 2 APD 1')
 plot_amplitude_nsr(amplitudes.T[7], 690, window_size=windowSize, title='Laser 2 APD 2')
@@ -194,9 +198,42 @@ plot_phase(phases.T[7], 690, window_size=windowSize, title='Laser 2 APD 2')
 # plot_phase(phases.T[7] - phases.T[6], 690, window_size=windowSize, title='Laser 2 APD 1 APD 2')
 # plot_phase((phases.T[4] - phases.T[5]) - (phases.T[7] - phases.T[6]), 690,
 #            window_size=windowSize, title='Laser 1 2 APD 1 APD 2')
+
+
+fig, axes = plt.subplots(2, 1, figsize=(8, 8))
+ax = axes[0]
+separations = np.array([25, 35])
+linearizedIntensities = np.array([linearize_intensity(np.mean(amplitudes.T[6]), separations[0]),
+                                  linearize_intensity(np.mean(amplitudes.T[7]), separations[1])
+                                  ])
+normalizedIntensities = linearizedIntensities - linearizedIntensities[0]
+
+intensitySlope = (normalizedIntensities[0] - normalizedIntensities[1]) / (separations[0] - separations[1])
+print(f'Intensity Slope = {intensitySlope} per mm.')
+
+normalizedPhases = np.array([np.mean(phases.T[6]), np.mean(phases.T[7])])
+normalizedPhases -= normalizedPhases[0]
+
+phaseSlope = (normalizedPhases[0] - normalizedPhases[1]) / (separations[0] - separations[1])
+print(f'Phase Slope = {10 * phaseSlope} °/cm or {10 * np.deg2rad(phaseSlope)} rad/cm.')
+
+ax.scatter(separations, normalizedIntensities)
+ax.set_xlim([20, 40])
+ax.set_xlabel(f'Source-Detector distance (mm)')
+ax.set_ylabel(r'log($\rho^2*\iota$)')
+# ax.set_ylabel(f'log(\u03C1)')
+ax.set_title(f'Intensity Slope')
+ax.grid(True)
+
+ax = axes[1]
+ax.scatter(separations, normalizedPhases)
+ax.set_xlim([20, 40])
+ax.set_xlabel(f'Source-Detector distance (mm)')
+ax.set_ylabel(f'Normalized Phases (°)')
+ax.set_title(f'Phase Slope')
+ax.grid(True)
+fig.tight_layout()
 plt.show()
 
 # corrcoeffPha = ma.corrcoef([ma.masked_invalid(phases.T[4]), ma.masked_invalid(phases.T[5]),
 #                             ma.masked_invalid(phases.T[6]), ma.masked_invalid(phases.T[7])])
-print(corrcoeffPha)
-print()
