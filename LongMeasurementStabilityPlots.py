@@ -168,7 +168,8 @@ demodulator1Coefficients = {'Amplitude Slope': 0.3011,
 demodulator2Coefficients = {'Amplitude Slope': 0.3011,
                             'Phase Coefficients': np.array([1.6e-7, -4.3e-5, 2.6e-4, 0.2085])
                             }
-saveLoc = Path.joinpath(Path('2022-05-16'), Path('DUAL-SLOPE-690'), Path('4'))
+# saveLoc = Path.joinpath(Path('2022-05-16'), Path('DUAL-SLOPE-690'), Path('3'))
+saveLoc = Path.joinpath(Path('2022-05-18'), Path('DUAL-SLOPE-820'), Path('5'))
 
 mask = [39, 71, 138, 167, 222, 254, 268]
 windowSize = 5
@@ -179,15 +180,23 @@ amplitudes = read_amplitudes_from_csv(saveLoc,
 phases = read_phases_from_csv(saveLoc, amplitudes=amplitudes,
                               demodulator_coefficients=demodulator1Coefficients)
 
-plot_amplitude_nsr(amplitudes.T[4], 690, window_size=windowSize, title='Laser 1 APD 1')
-plot_phase(phases.T[4], 690, window_size=windowSize, title='Laser 1 APD 1')
-plot_amplitude_nsr(amplitudes.T[5], 690, window_size=windowSize, title='Laser 1 APD 2')
-plot_phase(phases.T[5], 690, window_size=windowSize, title='Laser 1 APD 2')
+plot_amplitude_nsr(amplitudes.T[0], 690, window_size=windowSize, title='Laser 1 APD 1')
+plot_phase(phases.T[0], 690, window_size=windowSize, title='Laser 1 APD 1')
+plot_amplitude_nsr(amplitudes.T[1], 690, window_size=windowSize, title='Laser 1 APD 2')
+plot_phase(phases.T[1], 690, window_size=windowSize, title='Laser 1 APD 2')
 #
-plot_amplitude_nsr(amplitudes.T[6], 690, window_size=windowSize, title='Laser 2 APD 1')
-plot_phase(phases.T[6], 690, window_size=windowSize, title='Laser 2 APD 1')
-plot_amplitude_nsr(amplitudes.T[7], 690, window_size=windowSize, title='Laser 2 APD 2')
-plot_phase(phases.T[7], 690, window_size=windowSize, title='Laser 2 APD 2')
+plot_amplitude_nsr(amplitudes.T[2], 690, window_size=windowSize, title='Laser 2 APD 1')
+plot_phase(phases.T[2], 690, window_size=windowSize, title='Laser 2 APD 1')
+plot_amplitude_nsr(amplitudes.T[3], 690, window_size=windowSize, title='Laser 2 APD 2')
+plot_phase(phases.T[3], 690, window_size=windowSize, title='Laser 2 APD 2')
+
+nans = np.argwhere(np.isnan(phases))
+print(nans)
+
+nans = nans.ravel()[::2]
+noNanPhase = np.delete(phases.T[7], nans)
+nans = np.argwhere(np.isnan(noNanPhase))
+print(nans.ravel()[::2])
 
 
 # plot_amplitude_nsr(amplitudes.T[4] / amplitudes.T[5], 690, window_size=windowSize, title='Laser 1 APD 1 APD 2')
@@ -199,24 +208,23 @@ plot_phase(phases.T[7], 690, window_size=windowSize, title='Laser 2 APD 2')
 # plot_phase((phases.T[4] - phases.T[5]) - (phases.T[7] - phases.T[6]), 690,
 #            window_size=windowSize, title='Laser 1 2 APD 1 APD 2')
 
-
-fig, axes = plt.subplots(2, 1, figsize=(8, 8))
-ax = axes[0]
 separations = np.array([25, 35])
-linearizedIntensities = np.array([linearize_intensity(np.mean(amplitudes.T[6]), separations[0]),
-                                  linearize_intensity(np.mean(amplitudes.T[7]), separations[1])
+linearizedIntensities = np.array([linearize_intensity(np.mean(amplitudes.T[3]), separations[0]),
+                                  linearize_intensity(np.mean(amplitudes.T[2]), separations[1])
                                   ])
 normalizedIntensities = linearizedIntensities - linearizedIntensities[0]
+normalizedPhases = np.array([np.mean(phases.T[3]), np.mean(phases.T[2])])
+normalizedPhases -= normalizedPhases[0]
 
 intensitySlope = (normalizedIntensities[0] - normalizedIntensities[1]) / (separations[0] - separations[1])
 print(f'Intensity Slope = {intensitySlope} per mm.')
 
-normalizedPhases = np.array([np.mean(phases.T[6]), np.mean(phases.T[7])])
-normalizedPhases -= normalizedPhases[0]
-
 phaseSlope = (normalizedPhases[0] - normalizedPhases[1]) / (separations[0] - separations[1])
 print(f'Phase Slope = {10 * phaseSlope} °/cm or {10 * np.deg2rad(phaseSlope)} rad/cm.')
 
+
+fig, axes = plt.subplots(2, 1, figsize=(8, 8))
+ax = axes[0]
 ax.scatter(separations, normalizedIntensities)
 ax.set_xlim([20, 40])
 ax.set_xlabel(f'Source-Detector distance (mm)')
