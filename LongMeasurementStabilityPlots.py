@@ -153,7 +153,7 @@ def read_phases_from_csv(save_location, amplitudes, demodulator_coefficients):
     for i, (amplitude, phase) in enumerate(zip(amplitudes, phases)):
         for j, (a, p) in enumerate(zip(amplitude, phase)):
             # phases[i][j] = voltage2phase(p, a * demodulator_coefficients['Phase Coefficients'])
-            phases[i][j] = voltage2phase4sine(1000*p, [a, 303, 0.00277, -0.3])
+            phases[i][j] = voltage2phase4sine(1000*p, [a, 301.17, 0.00277773, 0])
             # phases[i][j] = voltage2phase4sine(1000*(phase[j] - phase[(j+4)%8]), [amplitude[j] - amplitude[(j+4)%8], 303, 0.00277, -0.3])
             print(f'index {j}, Phase {phases[i][j]}, Amplitude {a}, PhaseV {p}')
     return phases
@@ -191,8 +191,8 @@ def get_pairwise_slopes(wavelength, amplitudes, phases, get_mean_slopes=True):
         phase_slopes = np.array([(pairwise_phases[0][0] - pairwise_phases[0][1]) / (separations[0] - separations[1]),
                                  (pairwise_phases[1][0] - pairwise_phases[1][1]) / (separations[1] - separations[0])])
     elif wavelength == 690:
-        pairwise_intensities = np.array([[amplitudes.T[0], amplitudes.T[1]],
-                                        [amplitudes.T[2], amplitudes.T[3]]])
+        # pairwise_intensities = np.array([[amplitudes.T[0], amplitudes.T[1]],
+        #                                 [amplitudes.T[2], amplitudes.T[3]]])
         pairwise_linearized_intensities = np.array(
             [
                 [linearize_intensity(amplitudes.T[4], separations[0]),
@@ -254,7 +254,7 @@ demodulator2Coefficients = {'Amplitude Slope': 0.3011,
                             'Phase Coefficients': np.array([1.6e-7, -4.3e-5, 2.6e-4, 0.2085])
                             }
 # saveLoc = Path.joinpath(Path('2022-05-16'), Path('DUAL-SLOPE-690'), Path('3'))
-saveLoc = Path.joinpath(Path('2022-05-19'), Path('DUAL-SLOPE-820'), Path('9'))
+saveLoc = Path.joinpath(Path('2022-05-24'), Path('DUAL-SLOPE-820'), Path('1'))
 
 mask = [39, 71, 138, 167, 222, 254, 268]
 windowSize = 5
@@ -265,15 +265,15 @@ amplitudes = read_amplitudes_from_csv(saveLoc,
 phases = read_phases_from_csv(saveLoc, amplitudes=amplitudes,
                               demodulator_coefficients=demodulator1Coefficients)
 
-plot_amplitude_nsr(amplitudes.T[0], 690, window_size=windowSize, title='Laser 1 APD 1')
-plot_phase(phases.T[0], 690, window_size=windowSize, title='Laser 1 APD 1')
-plot_amplitude_nsr(amplitudes.T[1], 690, window_size=windowSize, title='Laser 1 APD 2')
-plot_phase(phases.T[1], 690, window_size=windowSize, title='Laser 1 APD 2')
+plot_amplitude_nsr(amplitudes.T[0], 820, window_size=windowSize, title='Laser 1 APD 1')
+plot_phase(phases.T[0], 820, window_size=windowSize, title='Laser 1 APD 1')
+plot_amplitude_nsr(amplitudes.T[1], 820, window_size=windowSize, title='Laser 1 APD 2')
+plot_phase(phases.T[1], 820, window_size=windowSize, title='Laser 1 APD 2')
 #
-plot_amplitude_nsr(amplitudes.T[2], 690, window_size=windowSize, title='Laser 2 APD 1')
-plot_phase(phases.T[2], 690, window_size=windowSize, title='Laser 2 APD 1')
-plot_amplitude_nsr(amplitudes.T[3], 690, window_size=windowSize, title='Laser 2 APD 2')
-plot_phase(phases.T[3], 690, window_size=windowSize, title='Laser 2 APD 2')
+plot_amplitude_nsr(amplitudes.T[2], 820, window_size=windowSize, title='Laser 2 APD 1')
+plot_phase(phases.T[2], 820, window_size=windowSize, title='Laser 2 APD 1')
+plot_amplitude_nsr(amplitudes.T[3], 820, window_size=windowSize, title='Laser 2 APD 2')
+plot_phase(phases.T[3], 820, window_size=windowSize, title='Laser 2 APD 2')
 
 # nans = np.argwhere(np.isnan(phases))
 # print(nans)
@@ -285,11 +285,11 @@ plot_phase(phases.T[3], 690, window_size=windowSize, title='Laser 2 APD 2')
 
 
 separations = np.array([25, 35])
-linearizedIntensities = np.array([linearize_intensity(np.mean(amplitudes.T[3]), separations[0]),
-                                  linearize_intensity(np.mean(amplitudes.T[2]), separations[1])
+linearizedIntensities = np.array([linearize_intensity(np.mean(amplitudes.T[0]), separations[0]),
+                                  linearize_intensity(np.mean(amplitudes.T[1]), separations[1])
                                   ])
 normalizedIntensities = linearizedIntensities - linearizedIntensities[0]
-normalizedPhases = np.array([np.mean(phases.T[3]), np.mean(phases.T[2])])
+normalizedPhases = np.array([np.mean(phases.T[0]), np.mean(phases.T[1])])
 normalizedPhases -= normalizedPhases[0]
 
 # intensitySlope = (normalizedIntensities[0] - normalizedIntensities[1]) / (separations[0] - separations[1])
@@ -306,7 +306,7 @@ print(f'Intensity Slope: {pairwiseSlopes[0]} per mm\n'
 print(f'Intensity Slope: {dualSlopes[0]} per mm\n'
       f'Phase Slope: {dualSlopes[1]} per mm.')
 
-opticalProperties = get_optical_properties(dualSlopes, modulation_frequency=95e6)
+opticalProperties = get_optical_properties(dualSlopes, modulation_frequency=100e6)
 print(f'Absorption Coefficient = {opticalProperties[0]}\n'
       f'Reduced Scattering Coefficient = {opticalProperties[1]}')
 
