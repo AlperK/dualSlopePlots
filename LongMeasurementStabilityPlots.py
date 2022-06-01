@@ -168,13 +168,6 @@ def get_pairwise_slopes(wavelength, amplitudes, phases, get_mean_slopes=True):
     pairwise_intensity_slopes = np.array([])
     pairwise_phase_slopes = np.array([])
     if wavelength == 820:
-        # pairwise_intensities = np.array([[amplitudes.T[0] - amplitudes.T[4], amplitudes.T[1] - amplitudes.T[5]],
-        #                                 [amplitudes.T[2] - amplitudes.T[6], amplitudes.T[3] - amplitudes.T[7]]])
-        # pairwise_linearized_intensities = np.array([[linearize_intensity(amplitudes.T[0] - amplitudes.T[4], separations[0]),
-        #                                             linearize_intensity(amplitudes.T[1] - amplitudes.T[5], separations[1])],
-        #                                            [linearize_intensity(amplitudes.T[2] - amplitudes.T[6], separations[1]),
-        #                                             linearize_intensity(amplitudes.T[3] - amplitudes.T[7], separations[0])]]
-        #                                            )
         pairwise_linearized_intensities = np.array([[linearize_intensity(amplitudes.T[0], separations[0]),
                                                     linearize_intensity(amplitudes.T[1], separations[1])],
                                                    [linearize_intensity(amplitudes.T[2], separations[1]),
@@ -191,8 +184,6 @@ def get_pairwise_slopes(wavelength, amplitudes, phases, get_mean_slopes=True):
         phase_slopes = np.array([(pairwise_phases[0][0] - pairwise_phases[0][1]) / (separations[0] - separations[1]),
                                  (pairwise_phases[1][0] - pairwise_phases[1][1]) / (separations[1] - separations[0])])
     elif wavelength == 690:
-        # pairwise_intensities = np.array([[amplitudes.T[0], amplitudes.T[1]],
-        #                                 [amplitudes.T[2], amplitudes.T[3]]])
         pairwise_linearized_intensities = np.array(
             [
                 [linearize_intensity(amplitudes.T[4], separations[0]),
@@ -201,14 +192,6 @@ def get_pairwise_slopes(wavelength, amplitudes, phases, get_mean_slopes=True):
                  linearize_intensity(amplitudes.T[7], separations[0])]
             ]
         )
-        # pairwise_linearized_intensities = np.array(
-        #     [
-        #         [linearize_intensity(amplitudes.T[4] - amplitudes.T[0], separations[0]),
-        #          linearize_intensity(amplitudes.T[5] - amplitudes.T[1], separations[1])],
-        #         [linearize_intensity(amplitudes.T[6] - amplitudes.T[2], separations[1]),
-        #          linearize_intensity(amplitudes.T[7] - amplitudes.T[3], separations[0])]
-        #     ]
-        # )
         intensity_slopes = np.array([(pairwise_linearized_intensities[0][0] - pairwise_linearized_intensities[0][1]) /
                                     (separations[0] - separations[1]),
                                     (pairwise_linearized_intensities[1][0] - pairwise_linearized_intensities[1][1]) /
@@ -254,10 +237,10 @@ demodulator2Coefficients = {'Amplitude Slope': 0.3011,
                             'Phase Coefficients': np.array([1.6e-7, -4.3e-5, 2.6e-4, 0.2085])
                             }
 # saveLoc = Path.joinpath(Path('2022-05-16'), Path('DUAL-SLOPE-690'), Path('3'))
-saveLoc = Path.joinpath(Path('2022-05-24'), Path('DUAL-SLOPE-820'), Path('1'))
+saveLoc = Path.joinpath(Path('2022-06-01'), Path('DUAL-SLOPE-820'), Path('4'))
 
 mask = [39, 71, 138, 167, 222, 254, 268]
-windowSize = 5
+windowSize = 10
 
 
 amplitudes = read_amplitudes_from_csv(saveLoc,
@@ -311,24 +294,71 @@ print(f'Absorption Coefficient = {opticalProperties[0]}\n'
       f'Reduced Scattering Coefficient = {opticalProperties[1]}')
 
 
-fig, axes = plt.subplots(2, 1, figsize=(8, 8))
-ax = axes[0]
-ax.scatter(separations, normalizedIntensities)
-ax.set_xlim([20, 40])
-ax.set_xlabel(f'Source-Detector distance (mm)')
-ax.set_ylabel(r'log($\rho^2*\iota$)')
-# ax.set_ylabel(f'log(\u03C1)')
-ax.set_title(f'Intensity Slope')
-ax.grid(True)
+# fig, axes = plt.subplots(2, 1, figsize=(8, 8))
+# ax = axes[0]
+# ax.scatter(separations, normalizedIntensities)
+# ax.set_xlim([20, 40])
+# ax.set_xlabel(f'Source-Detector distance (mm)')
+# ax.set_ylabel(r'log($\rho^2*\iota$)')
+# # ax.set_ylabel(f'log(\u03C1)')
+# ax.set_title(f'Intensity Slope')
+# ax.grid(True)
+#
+# ax = axes[1]
+# ax.scatter(separations, normalizedPhases)
+# ax.set_xlim([20, 40])
+# ax.set_xlabel(f'Source-Detector distance (mm)')
+# ax.set_ylabel(f'Normalized Phases (°)')
+# ax.set_title(f'Phase Slope')
+# ax.grid(True)
+# fig.tight_layout()
 
-ax = axes[1]
-ax.scatter(separations, normalizedPhases)
-ax.set_xlim([20, 40])
-ax.set_xlabel(f'Source-Detector distance (mm)')
-ax.set_ylabel(f'Normalized Phases (°)')
-ax.set_title(f'Phase Slope')
-ax.grid(True)
+
+pairwiseSlopesArray = get_pairwise_slopes(820, amplitudes, phases, get_mean_slopes=False)
+dualSlopesArray = get_dual_slopes(pairwiseSlopesArray)
+
+# print(f'Intensity Slope: {pairwiseSlopesArray[0]} per mm\n'
+#       f'Phase Slope: {pairwiseSlopesArray[1]} per mm.')
+# print(f'Intensity Slope: {dualSlopesArray[0]} per mm\n'
+#       f'Phase Slope: {dualSlopesArray[1]} per mm.')
+
+opticalPropertiesArray = get_optical_properties(dualSlopesArray, modulation_frequency=100e6)
+# print(f'Absorption Coefficient = {opticalProperties[0]}\n'
+#       f'Reduced Scattering Coefficient = {opticalProperties[1]}')
+
+
+fig, axes = plt.subplots(3, 2, figsize=(8, 6))
+fig.suptitle(f'Slopes')
+ax = axes[0][0]
+ax.set_title(f'Pair 1 Amplitude Slope')
+ax.scatter(np.arange(pairwiseSlopesArray[0][0].size), pairwiseSlopesArray[0][0],
+           alpha=0.6, linewidth=2, color='darkslateblue', edgecolor='darkblue', label=f'Pair 1')
+ax = axes[0][1]
+ax.set_title(f'Pair 1 Phase Slope')
+ax.scatter(np.arange(pairwiseSlopesArray[1][0].size), pairwiseSlopesArray[1][0],
+           alpha=0.6, linewidth=2, color='darkslateblue', edgecolor='darkblue', label=f'Pair 1')
+
+ax = axes[1][0]
+ax.set_title(f'Pair 2 Amplitude Slope')
+ax.scatter(np.arange(pairwiseSlopesArray[0][1].size), pairwiseSlopesArray[0][1],
+           alpha=0.6, linewidth=2, color='brown', edgecolor='darkred', label=f'Pair 2')
+ax = axes[1][1]
+ax.set_title(f'Pair 2 Phase Slope')
+ax.scatter(np.arange(pairwiseSlopesArray[1][1].size), pairwiseSlopesArray[1][1],
+           alpha=0.6, linewidth=2, color='brown', edgecolor='darkred', label=f'Pair 2')
+
+ax = axes[2][0]
+ax.set_title('Absorption Coefficient')
+ax.scatter(np.arange(opticalPropertiesArray[0].size), opticalPropertiesArray[0],
+           alpha=0.6, linewidth=2, color='brown', edgecolor='darkred', label=f'Absorption Coefficient')
+
+ax = axes[2][1]
+ax.set_title('Reduced Scattering Coefficient')
+ax.scatter(np.arange(opticalPropertiesArray[1].size), opticalPropertiesArray[1],
+           alpha=0.6, linewidth=2, color='darkslateblue', edgecolor='darkblue', label=f'Reduced Scattering Coefficient')
+
 fig.tight_layout()
+fig.legend()
 
 plt.show()
 
