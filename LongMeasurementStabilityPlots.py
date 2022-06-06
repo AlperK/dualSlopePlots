@@ -237,7 +237,7 @@ demodulator2Coefficients = {'Amplitude Slope': 0.3011,
                             'Phase Coefficients': np.array([1.6e-7, -4.3e-5, 2.6e-4, 0.2085])
                             }
 # saveLoc = Path.joinpath(Path('2022-05-16'), Path('DUAL-SLOPE-690'), Path('3'))
-saveLoc = Path.joinpath(Path('2022-06-01'), Path('DUAL-SLOPE-820'), Path('4'))
+saveLoc = Path.joinpath(Path('2022-06-06'), Path('DUAL-SLOPE-690'), Path('7'))
 
 mask = [39, 71, 138, 167, 222, 254, 268]
 windowSize = 10
@@ -248,15 +248,15 @@ amplitudes = read_amplitudes_from_csv(saveLoc,
 phases = read_phases_from_csv(saveLoc, amplitudes=amplitudes,
                               demodulator_coefficients=demodulator1Coefficients)
 
-plot_amplitude_nsr(amplitudes.T[0], 820, window_size=windowSize, title='Laser 1 APD 1')
-plot_phase(phases.T[0], 820, window_size=windowSize, title='Laser 1 APD 1')
-plot_amplitude_nsr(amplitudes.T[1], 820, window_size=windowSize, title='Laser 1 APD 2')
-plot_phase(phases.T[1], 820, window_size=windowSize, title='Laser 1 APD 2')
+plot_amplitude_nsr(amplitudes.T[4], 690, window_size=windowSize, title='Laser 1 APD 1')
+plot_phase(phases.T[4], 690, window_size=windowSize, title='Laser 1 APD 1')
+plot_amplitude_nsr(amplitudes.T[5], 690, window_size=windowSize, title='Laser 1 APD 2')
+plot_phase(phases.T[5], 690, window_size=windowSize, title='Laser 1 APD 2')
 #
-plot_amplitude_nsr(amplitudes.T[2], 820, window_size=windowSize, title='Laser 2 APD 1')
-plot_phase(phases.T[2], 820, window_size=windowSize, title='Laser 2 APD 1')
-plot_amplitude_nsr(amplitudes.T[3], 820, window_size=windowSize, title='Laser 2 APD 2')
-plot_phase(phases.T[3], 820, window_size=windowSize, title='Laser 2 APD 2')
+plot_amplitude_nsr(amplitudes.T[6], 690, window_size=windowSize, title='Laser 2 APD 1')
+plot_phase(phases.T[6], 690, window_size=windowSize, title='Laser 2 APD 1')
+plot_amplitude_nsr(amplitudes.T[7], 690, window_size=windowSize, title='Laser 2 APD 2')
+plot_phase(phases.T[7], 690, window_size=windowSize, title='Laser 2 APD 2')
 
 # nans = np.argwhere(np.isnan(phases))
 # print(nans)
@@ -268,20 +268,20 @@ plot_phase(phases.T[3], 820, window_size=windowSize, title='Laser 2 APD 2')
 
 
 separations = np.array([25, 35])
-linearizedIntensities = np.array([linearize_intensity(np.mean(amplitudes.T[0]), separations[0]),
-                                  linearize_intensity(np.mean(amplitudes.T[1]), separations[1])
+linearizedIntensities = np.array([linearize_intensity(np.mean(amplitudes.T[7]), separations[0]),
+                                  linearize_intensity(np.mean(amplitudes.T[5]), separations[1])
                                   ])
 normalizedIntensities = linearizedIntensities - linearizedIntensities[0]
-normalizedPhases = np.array([np.mean(phases.T[0]), np.mean(phases.T[1])])
+normalizedPhases = np.array([np.mean(phases.T[7]), np.mean(phases.T[5])])
 normalizedPhases -= normalizedPhases[0]
 
-# intensitySlope = (normalizedIntensities[0] - normalizedIntensities[1]) / (separations[0] - separations[1])
-# print(f'Intensity Slope = {intensitySlope} per mm.')
+intensitySlope = (normalizedIntensities[0] - normalizedIntensities[1]) / (separations[0] - separations[1])
+print(f'Intensity Slope = {intensitySlope} per mm.')
 #
-# phaseSlope = (normalizedPhases[0] - normalizedPhases[1]) / (separations[0] - separations[1])
-# print(f'Phase Slope = {10 * phaseSlope} °/cm or {10 * np.deg2rad(phaseSlope)} rad/cm.')
+phaseSlope = (normalizedPhases[0] - normalizedPhases[1]) / (separations[0] - separations[1])
+print(f'Phase Slope = {10 * phaseSlope} °/cm or {10 * np.deg2rad(phaseSlope)} rad/cm.')
 
-pairwiseSlopes = get_pairwise_slopes(820, amplitudes, phases)
+pairwiseSlopes = get_pairwise_slopes(690, amplitudes, phases)
 dualSlopes = get_dual_slopes(pairwiseSlopes)
 
 print(f'Intensity Slope: {pairwiseSlopes[0]} per mm\n'
@@ -289,7 +289,7 @@ print(f'Intensity Slope: {pairwiseSlopes[0]} per mm\n'
 print(f'Intensity Slope: {dualSlopes[0]} per mm\n'
       f'Phase Slope: {dualSlopes[1]} per mm.')
 
-opticalProperties = get_optical_properties(dualSlopes, modulation_frequency=100e6)
+opticalProperties = get_optical_properties(dualSlopes, modulation_frequency=95e6)
 print(f'Absorption Coefficient = {opticalProperties[0]}\n'
       f'Reduced Scattering Coefficient = {opticalProperties[1]}')
 
@@ -314,7 +314,7 @@ print(f'Absorption Coefficient = {opticalProperties[0]}\n'
 # fig.tight_layout()
 
 
-pairwiseSlopesArray = get_pairwise_slopes(820, amplitudes, phases, get_mean_slopes=False)
+pairwiseSlopesArray = get_pairwise_slopes(690, amplitudes, phases, get_mean_slopes=False)
 dualSlopesArray = get_dual_slopes(pairwiseSlopesArray)
 
 # print(f'Intensity Slope: {pairwiseSlopesArray[0]} per mm\n'
@@ -322,7 +322,7 @@ dualSlopesArray = get_dual_slopes(pairwiseSlopesArray)
 # print(f'Intensity Slope: {dualSlopesArray[0]} per mm\n'
 #       f'Phase Slope: {dualSlopesArray[1]} per mm.')
 
-opticalPropertiesArray = get_optical_properties(dualSlopesArray, modulation_frequency=100e6)
+opticalPropertiesArray = get_optical_properties(dualSlopesArray, modulation_frequency=95e6)
 # print(f'Absorption Coefficient = {opticalProperties[0]}\n'
 #       f'Reduced Scattering Coefficient = {opticalProperties[1]}')
 
@@ -359,6 +359,9 @@ ax.scatter(np.arange(opticalPropertiesArray[1].size), opticalPropertiesArray[1],
 
 fig.tight_layout()
 fig.legend()
+
+
+
 
 plt.show()
 
