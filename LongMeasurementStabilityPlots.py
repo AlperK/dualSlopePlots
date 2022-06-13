@@ -237,7 +237,7 @@ demodulator2Coefficients = {'Amplitude Slope': 0.3011,
                             'Phase Coefficients': np.array([1.6e-7, -4.3e-5, 2.6e-4, 0.2085])
                             }
 # saveLoc = Path.joinpath(Path('2022-05-16'), Path('DUAL-SLOPE-690'), Path('3'))
-saveLoc = Path.joinpath(Path('2022-06-07'), Path('DUAL-SLOPE-690'), Path('2'))
+saveLoc = Path.joinpath(Path('2022-06-13'), Path('DUAL-SLOPE-690'), Path('1'))
 
 mask = [39, 71, 138, 167, 222, 254, 268]
 windowSize = 10
