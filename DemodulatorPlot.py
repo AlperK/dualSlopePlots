@@ -18,7 +18,19 @@ def sine_model(x, amp, a, freq, phi, offset):
     return amp * a * (np.sin(2*np.pi*freq*(x+90) + phi)) + np.log(amp)*offset
 
 
-p0 = Path.joinpath(Path('2022-06-08'), Path('Demodulator-2'), Path('PhaseCalibration'),
+date = '2022-06-20'
+demodulator = 'Demodulator-2'
+root = Path.joinpath(Path(date), Path(demodulator))
+freq = '1'
+reference = ['500', '1000']
+signal = ['100', '400', '700', '1000']
+
+paths = [Path.joinpath(root, Path('PhaseCalibration'), Path(f'{freq}kHz_{sig}mV_{ref}mV_phase.csv'))
+         for sig in signal for ref in reference]
+
+print(paths)
+
+p0 = Path.joinpath(root, Path('PhaseCalibration'),
                    Path('1kHz_100mV_1000mV_phase.csv'))
 pha0 = []
 vol0 = []
