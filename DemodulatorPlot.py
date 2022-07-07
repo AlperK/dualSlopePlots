@@ -18,8 +18,8 @@ def sine_model(x, amp, a, freq, phi, offset):
     return amp * a * (np.sin(2*np.pi*freq*(x+90) + phi)) + np.log(amp)*offset
 
 
-date = '2022-06-20'
-demodulator = 'Demodulator-2'
+date = '2022-06-28'
+demodulator = 'Demodulator-1'
 root = Path.joinpath(Path(date), Path(demodulator))
 freq = '1'
 reference = ['500', '1000']

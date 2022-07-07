@@ -8,6 +8,10 @@ def sine_model(x, amp, a, freq, phi, offset):
     return amp * a * (np.sin(2*np.pi*freq*(x+90) + phi)) + np.log(amp)*offset
 
 
+def line_model(x, slope, intercept):
+    return x * slope + intercept
+
+
 def sine_model_dataset(params, i, x):
     """calc sine from params for data set i
     using simple, hardwired naming convention"""
@@ -31,7 +35,7 @@ def objective(params, x, data):
     return resid.flatten()
 
 
-date = '2022-06-20'
+date = '2022-06-28'
 demodulator = 'Demodulator-1'
 root = Path.joinpath(Path(date), Path(demodulator))
 f = '1'
@@ -61,28 +65,54 @@ fit_params = Parameters()
 for iy, y in enumerate(phases[:, 1]):
     amp = int(signal[int(iy/4) % 4])
     print(amp)
-    fit_params.add( 'amp_%i' % (iy+1), value=amp)
+    fit_params.add('amp_%i' % (iy+1), value=amp)
     fit_params['amp_%i' % (iy+1)].vary = False
-    fit_params.add( 'a_%i' % (iy+1), value=0.3, min=0.01,  max=2)
-    fit_params.add( 'freq_%i' % (iy+1), value=2.7773e-3)
+    fit_params.add('a_%i' % (iy+1), value=0.3, min=0.01,  max=2)
+    fit_params.add('freq_%i' % (iy+1), value=2.7773e-3)
     fit_params['freq_%i' % (iy+1)].vary = False
-    fit_params.add( 'phi_%i' % (iy+1), value=0, min=-10, max=10)
+    fit_params.add('phi_%i' % (iy+1), value=0, min=-10, max=10)
     # fit_params['phi_%i' % (iy+1)].vary = False
-    fit_params.add( 'offset_%i' % (iy+1), value=-0.3, min=-1000, max=1000)
+    fit_params.add('offset_%i' % (iy+1), value=-0.3, min=-1000, max=1000)
 
 for iy in (np.arange(2, 16)):
-    # fit_params['amp_%i' % iy].expr='amp_1'
-    fit_params['a_%i' % iy].expr='a_1'
-    fit_params['freq_%i' % iy].expr='freq_1'
-    fit_params['phi_%i' % iy].expr='phi_1'
-    fit_params['offset_%i' % iy].expr='offset_1'
+    fit_params['a_%i' % iy].expr = 'a_1'
+    fit_params['freq_%i' % iy].expr = 'freq_1'
+    fit_params['phi_%i' % iy].expr = 'phi_1'
+    fit_params['offset_%i' % iy].expr = 'offset_1'
 
 result = minimize(objective, fit_params, method='leastsq', args=(phases[0][0], phases[:, 1]))
 report_fit(result)
-# plt.scatter(phases[8][0], sine_model(np.array([phases[8][0]]), amp=0.4, a=109.5, freq=0.00277, phi=0, offset=0.4),
-#             s=1, c='k', label='SINE-FIT-0.1')
+print()
+
 for i in range(16):
     y_fit = sine_model_dataset(fit_params, i, phases[0][0])
-    plt.plot(phases[0][0], phases[i, :][1], 'o', phases[0][0], y_fit, '-')
+    # plt.plot(phases[0][0], phases[i, :][1], 'o', phases[0][0], y_fit, '-', label=f'{paths[i]}')
+    plt.plot(phases[0][0], phases[i, :][1], 'o')
+    plt.plot(phases[0][0], sine_model(phases[0][0],
+                                      amp=int(signal[i % 4]),
+                                      a=0.3013273,
+                                      freq=0.0027773,
+                                      phi=-0.00435208,
+                                      offset=-0.50747081), '-', label=f'{paths[i]}')
+    # print(int(signal[i % 4]))
     # plt.plot(phases[0][0], phases[i, :][1], 'o')
+plt.legend()
+plt.show()
+
+demodulator = 'Demodulator-2'
+root = Path.joinpath(Path(date), Path(demodulator))
+amplitudes = np.loadtxt(Path.joinpath(root,
+                                      Path('AmplitudeCalibration'),
+                                      Path(f'{f}kHz_amplitude.csv'),
+                                      ),
+                        delimiter=','
+                        ).T
+lModel = Model(line_model)
+params = lModel.make_params(slope=3, intercept=0)
+result = lModel.fit(data=amplitudes[0], x=amplitudes[1], slope=3, intercept=0)
+print(result.fit_report())
+
+plt.figure()
+plt.plot(amplitudes[1], amplitudes[0], 'o',
+         amplitudes[1], line_model(amplitudes[1], slope=3317.051, intercept=5.928), '-')
 plt.show()
