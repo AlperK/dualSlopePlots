@@ -35,7 +35,7 @@ def objective(params, x, data):
     return resid.flatten()
 
 
-date = '2022-06-28'
+date = '2022-07-07'
 demodulator = 'Demodulator-1'
 root = Path.joinpath(Path(date), Path(demodulator))
 f = '1'
@@ -67,12 +67,12 @@ for iy, y in enumerate(phases[:, 1]):
     print(amp)
     fit_params.add('amp_%i' % (iy+1), value=amp)
     fit_params['amp_%i' % (iy+1)].vary = False
-    fit_params.add('a_%i' % (iy+1), value=0.3, min=0.01,  max=2)
-    fit_params.add('freq_%i' % (iy+1), value=2.7773e-3)
+    fit_params.add('a_%i' % (iy+1), value=0.30040378, min=0.01,  max=2)
+    fit_params.add('freq_%i' % (iy+1), value=0.0027722)
     fit_params['freq_%i' % (iy+1)].vary = False
-    fit_params.add('phi_%i' % (iy+1), value=0, min=-10, max=10)
+    fit_params.add('phi_%i' % (iy+1), value=0.0086891, min=-10, max=10)
     # fit_params['phi_%i' % (iy+1)].vary = False
-    fit_params.add('offset_%i' % (iy+1), value=-0.3, min=-1000, max=1000)
+    fit_params.add('offset_%i' % (iy+1), value=0.34910107, min=-1000, max=1000)
 
 for iy in (np.arange(2, 16)):
     fit_params['a_%i' % iy].expr = 'a_1'
@@ -90,16 +90,19 @@ for i in range(16):
     plt.plot(phases[0][0], phases[i, :][1], 'o')
     plt.plot(phases[0][0], sine_model(phases[0][0],
                                       amp=int(signal[i % 4]),
-                                      a=0.3013273,
-                                      freq=0.0027773,
-                                      phi=-0.00435208,
-                                      offset=-0.50747081), '-', label=f'{paths[i]}')
+                                      a=0.3004,
+                                      freq=0.002767,
+                                      # phi=0.00868981,
+                                      phi=0.01447449,
+                                      offset=0.3491), '-',
+             # label=f'{paths[i]}',
+             )
     # print(int(signal[i % 4]))
     # plt.plot(phases[0][0], phases[i, :][1], 'o')
 plt.legend()
 plt.show()
 
-demodulator = 'Demodulator-2'
+demodulator = 'Demodulator-1'
 root = Path.joinpath(Path(date), Path(demodulator))
 amplitudes = np.loadtxt(Path.joinpath(root,
                                       Path('AmplitudeCalibration'),
@@ -108,11 +111,11 @@ amplitudes = np.loadtxt(Path.joinpath(root,
                         delimiter=','
                         ).T
 lModel = Model(line_model)
-params = lModel.make_params(slope=3, intercept=0)
-result = lModel.fit(data=amplitudes[0], x=amplitudes[1], slope=3, intercept=0)
+params = lModel.make_params(slope=3000, intercept=0)
+result = lModel.fit(data=amplitudes[0], x=amplitudes[1]*1000, slope=3000, intercept=0)
 print(result.fit_report())
 
 plt.figure()
 plt.plot(amplitudes[1], amplitudes[0], 'o',
-         amplitudes[1], line_model(amplitudes[1], slope=3317.051, intercept=5.928), '-')
+         amplitudes[1], line_model(amplitudes[1]*1000, slope=3.332, intercept=-12.192), '-')
 plt.show()
