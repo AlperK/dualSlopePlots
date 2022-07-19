@@ -237,7 +237,7 @@ demodulator2Coefficients = {'Amplitude Slope': 0.3011,
                             'Phase Coefficients': np.array([1.6e-7, -4.3e-5, 2.6e-4, 0.2085])
                             }
 # saveLoc = Path.joinpath(Path('2022-05-16'), Path('DUAL-SLOPE-690'), Path('3'))
-saveLoc = Path.joinpath(Path('2022-07-13'), Path('DUAL-SLOPE-690'), Path('6'))
+saveLoc = Path.joinpath(Path('2022-07-19'), Path('DUAL-SLOPE-690'), Path('6'))
 
 mask = [39, 71, 138, 167, 222, 254, 268]
 windowSize = 10
@@ -289,7 +289,7 @@ print(f'Intensity Slope: {pairwiseSlopes[0]} per mm\n'
 print(f'Intensity Slope: {dualSlopes[0]} per mm\n'
       f'Phase Slope: {dualSlopes[1]} per mm.')
 
-opticalProperties = get_optical_properties(dualSlopes, modulation_frequency=105e6)
+opticalProperties = get_optical_properties(dualSlopes, modulation_frequency=75e6)
 print(f'Absorption Coefficient = {opticalProperties[0]}\n'
       f'Reduced Scattering Coefficient = {opticalProperties[1]}')
 
@@ -322,7 +322,7 @@ dualSlopesArray = get_dual_slopes(pairwiseSlopesArray)
 # print(f'Intensity Slope: {dualSlopesArray[0]} per mm\n'
 #       f'Phase Slope: {dualSlopesArray[1]} per mm.')
 
-opticalPropertiesArray = get_optical_properties(dualSlopesArray, modulation_frequency=105e6)
+opticalPropertiesArray = get_optical_properties(dualSlopesArray, modulation_frequency=75e6)
 # print(f'Absorption Coefficient = {opticalProperties[0]}\n'
 #       f'Reduced Scattering Coefficient = {opticalProperties[1]}')
 
