@@ -43,7 +43,7 @@ def plot_raw_amplitude_phase(ac, phi):
 
 date = Path('2022-07-28')
 measurement = Path('DUAL-SLOPE-690')
-measurementCount = Path('3')
+measurementCount = Path('4')
 location = Path.joinpath(date, measurement, measurementCount)
 
 amplitudeLocation = Path.joinpath(location, Path('amplitude.csv'))
