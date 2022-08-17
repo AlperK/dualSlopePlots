@@ -169,9 +169,9 @@ def plot_optical_parameters(absorption, scattering, window=None):
     fig.tight_layout()
 
 
-date = Path('2022-07-29')
+date = Path('2022-08-15')
 measurement = Path('DUAL-SLOPE-690')
-measurementCount = Path('2')
+measurementCount = Path('4')
 location = Path.joinpath(date, measurement, measurementCount)
 
 amplitudeLocation = Path.joinpath(location, Path('amplitude.csv'))
