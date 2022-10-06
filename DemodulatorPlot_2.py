@@ -35,12 +35,12 @@ def objective(params, x, data):
     return resid.flatten()
 
 
-date = '2022-07-07'
+date = '2022-08-19'
 demodulator = 'Demodulator-1'
 root = Path.joinpath(Path(date), Path(demodulator))
-f = '1'
-reference = ['100', '400', '700', '1000']
-signal = ['100', '400', '700', '1000']
+f = '4'
+reference = ['100', '300', '500', '700']
+signal = ['100', '300', '500', '700']
 
 paths = [Path.joinpath(root, Path('PhaseCalibration'), Path(f'{f}kHz_{sig}mV_{ref}mV_phase.csv'))
          for sig in signal for ref in reference]
