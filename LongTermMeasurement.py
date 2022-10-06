@@ -171,7 +171,7 @@ def plot_optical_parameters(absorption, scattering, window=None):
 
 date = Path('2022-10-05')
 measurement = Path('DUAL-SLOPE-690')
-measurementCount = Path('4')
+measurementCount = Path('3')
 location = Path.joinpath(date, measurement, measurementCount)
 
 amplitudeLocation = Path.joinpath(location, Path('amplitude.csv'))
@@ -215,6 +215,8 @@ mu_a, mu_s = get_optical_properties((amplitude_slopes.T[0][0][1] + amplitude_slo
                                     frequency)
 
 plot_optical_parameters(mu_a, mu_s, window=window)
+print(f'mu_a error: {(np.mean(mu_a) - 0.0015) / np.mean(0.0015) * 100}')
+print(f'mu_a error: {(np.mean(mu_s) - 1.023) / np.mean(1.023) * 100}')
 
 fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(8, 6))
 fig.suptitle('Slope Plots')
@@ -225,7 +227,7 @@ ax.set_xlabel('Data Count')
 ax.plot(amplitude_slopes.T[0][0][1], color='darkred', label='Pair 1')
 ax.plot(amplitude_slopes.T[0][1][1], color='darkslateblue', label='Pair 2')
 ax.plot((amplitude_slopes.T[0][0][1]+amplitude_slopes.T[0][1][1])/2, color='black', label='Average')
-ax.axhline(-0.00734, color='darkgreen', label='Expected')
+ax.axhline(-0.0869, color='darkgreen', label='Expected')
 
 ax = axes[1]
 ax.set_title('Phase Slopes')
@@ -234,7 +236,7 @@ ax.set_xlabel('Data Count')
 ax.plot(phase_slopes.T[0][0][1]*180/np.pi, color='darkred')
 ax.plot(phase_slopes.T[0][1][1]*180/np.pi, color='darkslateblue')
 ax.plot((phase_slopes.T[0][0][1]+phase_slopes.T[0][1][1])/2*180/np.pi, color='black')
-ax.axhline(0.0682*180/np.pi, color='darkgreen')
+ax.axhline(0.0543*180/np.pi, color='darkgreen')
 
 fig.legend()
 fig.tight_layout()
