@@ -255,7 +255,7 @@ plt.tight_layout()
 # plt.scatter(pha3, third(np.array([pha3]), 2.0, 1.555e-4, -0.042, 0.333, 197.18, 0), s=1, c='k', label='NEW-FIT-2.0')
 # plt.scatter(pha3, third(np.array([pha3]), 0.053, 1.555e-4, -0.042, 0.333, 197.18, 0), s=1, c='k', label='NEW-FIT-0.053')
 
-# plt.title('Phase Calibration \n $V_{ref} = 1000 mV$')
+# plt.title('PhaseCalibration \n $V_{ref} = 1000 mV$')
 # plt.legend()
 # plt.xticks([0, 30, 60, 90, 120, 150, 180])
 # plt.yticks([-100, -50, 0, 50, 100])

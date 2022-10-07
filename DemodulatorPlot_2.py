@@ -35,12 +35,12 @@ def objective(params, x, data):
     return resid.flatten()
 
 
-date = '2022-07-07'
-demodulator = 'Demodulator-1'
+date = '2022-10-07'
+demodulator = 'Demodulator-2'
 root = Path.joinpath(Path(date), Path(demodulator))
 f = '1'
-reference = ['100', '400', '700', '1000']
-signal = ['100', '400', '700', '1000']
+reference = ['100', '600', '1100', '1600', '2100', '2600', '3100']
+signal = ['1100', '1100', '1100', '1100']
 
 paths = [Path.joinpath(root, Path('PhaseCalibration'), Path(f'{f}kHz_{sig}mV_{ref}mV_phase.csv'))
          for sig in signal for ref in reference]
@@ -102,7 +102,7 @@ for i in range(16):
 plt.legend()
 plt.show()
 
-demodulator = 'Demodulator-1'
+demodulator = 'Demodulator-2'
 root = Path.joinpath(Path(date), Path(demodulator))
 amplitudes = np.loadtxt(Path.joinpath(root,
                                       Path('AmplitudeCalibration'),
