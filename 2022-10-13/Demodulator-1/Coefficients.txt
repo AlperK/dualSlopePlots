@@ -1,0 +1,2 @@
+a=0.3006, freq=0.00277553, phi=0.00938, offset=0.075
+slope=3.3315, intercept=-2.595
