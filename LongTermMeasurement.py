@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
 import json
+from scipy.optimize import fsolve
 
 
 def rolling_apply(fun, a, w):
@@ -233,13 +234,35 @@ def plot_optical_parameters(absorption, scattering, window=None):
     fig.tight_layout()
 
 
-date = Path('2022-10-17')
-measurement = Path('DUAL-SLOPE-690-3')
-measurementCount = Path('4')
+def Slope_Equations_690(S, *data):
+    RF = data[0]
+    ua690 = data[1]
+    us690 = data[2]
+
+    Sac, Sp = S[0], S[1]
+    # RF = 81.001e6
+    # ua690 = 0.0124
+    # us690 = 0.930
+
+    w = 2 * np.pi * RF
+    v = 3e11 / 1.4
+
+    eq1 = (Sp / Sac - Sac / Sp) * (w / (2 * v))
+    eq2 = (Sac ** 2 - Sp ** 2) / (3 * ua690)
+
+    return [eq1 - ua690, eq2 - us690]
+    # return [eq1, eq2]
+
+
+date = Path('2022-10-18')
+measurement = Path('DUAL-SLOPE-690-2')
+measurementCount = Path('1')
 location = Path.joinpath(date, measurement, measurementCount)
 
 amplitudeLocation = Path.joinpath(location, Path('amplitude.csv'))
 phaseLocation = Path.joinpath(location, Path('phase.csv'))
+
+p_ua690, p_us690 = 0.015, 0.930
 
 amplitudes = np.loadtxt(str(amplitudeLocation), delimiter=',')
 amplitudes = amplitudes.reshape((amplitudes.shape[0], 2, 2, 2))
@@ -278,9 +301,11 @@ mu_a, mu_s = get_optical_properties((amplitude_slopes.T[0][0][1] + amplitude_slo
                                     (phase_slopes.T[0][0][1] + phase_slopes.T[0][1][1]) / 2,
                                     frequency)
 
+S = fsolve(Slope_Equations_690, np.array([-0.1, 0.1]), args=(frequency, p_ua690, p_us690))
+
 plot_optical_parameters(mu_a, mu_s, window=window)
-print(f'mu_a error: {(np.mean(mu_a) - 0.0124) / np.mean(0.0124) * 100}')
-print(f'mu_a error: {(np.mean(mu_s) - 0.930) / np.mean(0.930) * 100}')
+print(f'mu_a error: {(np.mean(mu_a) - p_ua690) / np.mean(p_ua690) * 100}')
+print(f'mu_a error: {(np.mean(mu_s) - p_us690) / np.mean(p_us690) * 100}')
 
 fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(8, 6))
 fig.suptitle('Slope Plots')
@@ -291,7 +316,7 @@ ax.set_xlabel('Data Count')
 ax.plot(amplitude_slopes.T[0][0][1], color='darkred', label='Pair 1')
 ax.plot(amplitude_slopes.T[0][1][1], color='darkslateblue', label='Pair 2')
 ax.plot((amplitude_slopes.T[0][0][1]+amplitude_slopes.T[0][1][1])/2, color='black', label='Average')
-ax.axhline(0.186, color='darkgreen', label='Expected')
+ax.axhline(-S[0], color='darkgreen', label='Expected')
 
 ax = axes[1]
 ax.set_title('Phase Slopes')
@@ -300,7 +325,7 @@ ax.set_xlabel('Data Count')
 ax.plot(phase_slopes.T[0][0][1]*180/np.pi, color='darkred')
 ax.plot(phase_slopes.T[0][1][1]*180/np.pi, color='darkslateblue')
 ax.plot((phase_slopes.T[0][0][1]+phase_slopes.T[0][1][1])/2*180/np.pi, color='black')
-ax.axhline(-0.0177*180/np.pi, color='darkgreen')
+ax.axhline(-S[1]*180/np.pi, color='darkgreen')
 
 fig.legend()
 fig.tight_layout()
