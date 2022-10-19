@@ -254,15 +254,15 @@ def Slope_Equations_690(S, *data):
     # return [eq1, eq2]
 
 
-date = Path('2022-10-18')
-measurement = Path('DUAL-SLOPE-690-2')
-measurementCount = Path('1')
+date = Path('2022-10-19')
+measurement = Path('DUAL-SLOPE-690-3')
+measurementCount = Path('3')
 location = Path.joinpath(date, measurement, measurementCount)
 
 amplitudeLocation = Path.joinpath(location, Path('amplitude.csv'))
 phaseLocation = Path.joinpath(location, Path('phase.csv'))
 
-p_ua690, p_us690 = 0.015, 0.930
+p_ua690, p_us690 = 0.0081, 0.761
 
 amplitudes = np.loadtxt(str(amplitudeLocation), delimiter=',')
 amplitudes = amplitudes.reshape((amplitudes.shape[0], 2, 2, 2))
