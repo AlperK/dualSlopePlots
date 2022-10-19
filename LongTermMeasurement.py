@@ -40,15 +40,19 @@ def plot_raw_amplitude_phase(ac, ph, window=None):
     if window is not None:
         ac_1 = rolling_apply(fun=np.mean, a=ac.T[0][0][1], w=window)
         ac_2 = rolling_apply(fun=np.mean, a=ac.T[1][0][1], w=window)
+        ac_3 = rolling_apply(fun=np.mean, a=ac.T[0][1][1], w=window)
+        ac_4 = rolling_apply(fun=np.mean, a=ac.T[1][1][1], w=window)
         ph_1 = rolling_apply(fun=np.mean, a=ph.T[0][0][1], w=window)
         ph_2 = rolling_apply(fun=np.mean, a=ph.T[1][0][1], w=window)
+        ph_3 = rolling_apply(fun=np.mean, a=ph.T[0][1][1], w=window)
+        ph_4 = rolling_apply(fun=np.mean, a=ph.T[1][1][1], w=window)
     else:
         ac_1 = ac.T[0][0][1]
         ac_2 = ac.T[1][0][1]
         ph_1 = ph.T[0][0][1]
         ph_2 = ph.T[1][0][1]
 
-    fig, axes = plt.subplots(2, 4, figsize=(16, 6))
+    fig, axes = plt.subplots(4, 4, figsize=(12, 8))
     fig.suptitle(r'Raw AC and $\phi$ for Pair 1')
 
     ax = axes[0][0]
@@ -111,6 +115,66 @@ def plot_raw_amplitude_phase(ac, ph, window=None):
     ax.set_xlabel('Data count')
     ax.set_ylabel(r'$\phi$ (°)')
 
+    ax = axes[2][0]
+    ax.plot(ac_3,
+            linewidth=2, color='brown')
+    ax.set_title('Pair 2 AC at 25 mm')
+    ax.set_xlabel('Data count')
+    ax.set_ylabel('AC (mV)')
+
+    ax = axes[2][1]
+    ax.plot(100 * rolling_apply(fun=np.std, a=ac_3, w=window) / rolling_apply(fun=np.mean, a=ac_3, w=window),
+            linewidth=2, color='brown')
+    ax.axhline(0.1, color='black', alpha=1, linewidth=3, linestyle=':')
+    ax.set_title('Pair 2 at 25 mm AC std / mean')
+    ax.set_xlabel('Data count')
+    ax.set_ylabel('%')
+
+    ax = axes[2][2]
+    ax.plot(ph_3,
+            linewidth=2, color='darkslateblue')
+    ax.set_title(r'Pair 2 $\phi$ at 25 mm')
+    ax.set_xlabel('Data count')
+    ax.set_ylabel(r'$\phi$ (°)')
+
+    ax = axes[2][3]
+    ax.plot(rolling_apply(fun=np.std, a=ph_3, w=window),
+            linewidth=2, color='darkslateblue')
+    ax.axhline(0.1, color='black', alpha=1, linewidth=3, linestyle=':')
+    ax.set_title(r'Pair 2 at 25 mm $\phi$ std / mean')
+    ax.set_xlabel('Data count')
+    ax.set_ylabel(r'$\phi$ (°)')
+
+    ax = axes[3][0]
+    ax.plot(ac_4,
+            linewidth=2, color='brown')
+    ax.set_title('Pair 2 AC at 35 mm')
+    ax.set_xlabel('Data count')
+    ax.set_ylabel('AC (mV)')
+
+    ax = axes[3][1]
+    ax.plot(100 * rolling_apply(fun=np.std, a=ac_4, w=window) / rolling_apply(fun=np.mean, a=ac_4, w=window),
+            linewidth=2, color='brown')
+    ax.axhline(0.1, color='black', alpha=1, linewidth=3, linestyle=':')
+    ax.set_title('Pair 2 at 35 mm AC std / mean')
+    ax.set_xlabel('Data count')
+    ax.set_ylabel('%')
+
+    ax = axes[3][2]
+    ax.plot(ph_4,
+            linewidth=2, color='darkslateblue')
+    ax.set_title(r'Pair 2 $\phi$ at 25 mm')
+    ax.set_xlabel('Data count')
+    ax.set_ylabel(r'$\phi$ (°)')
+
+    ax = axes[3][3]
+    ax.plot(rolling_apply(fun=np.std, a=ph_4, w=window),
+            linewidth=2, color='darkslateblue')
+    ax.axhline(0.1, color='black', alpha=1, linewidth=3, linestyle=':')
+    ax.set_title(r'Pair 2 at 25 mm $\phi$ std / mean')
+    ax.set_xlabel('Data count')
+    ax.set_ylabel(r'$\phi$ (°)')
+
     fig.tight_layout()
 
 
@@ -136,7 +200,7 @@ def plot_optical_parameters(absorption, scattering, window=None):
     ax = axes[0][0]
     ax.scatter(np.arange(absorption.size), absorption,
                alpha=0.6, linewidth=2, color='brown', edgecolor='darkred')
-    ax.axhline(0.0015, color='black', alpha=1, linewidth=3, linestyle=':')
+    ax.axhline(0.0124, color='black', alpha=1, linewidth=3, linestyle=':')
     # ax.set_ylim([0.006, 0.012])
     ax.set_title(f'Absorption Coefficient')
     ax.set_xlabel(f'Data points')
@@ -153,7 +217,7 @@ def plot_optical_parameters(absorption, scattering, window=None):
     ax = axes[1][0]
     ax.scatter(np.arange(scattering.size), scattering,
                alpha=0.6, linewidth=2, color='darkslateblue', edgecolor='darkblue')
-    ax.axhline(1.023, color='black', alpha=1, linewidth=3, linestyle=':')
+    ax.axhline(0.930, color='black', alpha=1, linewidth=3, linestyle=':')
     ax.set_title(f'Reduced Scattering Coefficient')
     ax.set_xlabel(f'Data points')
     ax.set_ylabel(f'1/mm')
@@ -169,9 +233,9 @@ def plot_optical_parameters(absorption, scattering, window=None):
     fig.tight_layout()
 
 
-date = Path('2022-10-05')
-measurement = Path('DUAL-SLOPE-690')
-measurementCount = Path('3')
+date = Path('2022-10-17')
+measurement = Path('DUAL-SLOPE-690-3')
+measurementCount = Path('4')
 location = Path.joinpath(date, measurement, measurementCount)
 
 amplitudeLocation = Path.joinpath(location, Path('amplitude.csv'))
@@ -215,8 +279,8 @@ mu_a, mu_s = get_optical_properties((amplitude_slopes.T[0][0][1] + amplitude_slo
                                     frequency)
 
 plot_optical_parameters(mu_a, mu_s, window=window)
-print(f'mu_a error: {(np.mean(mu_a) - 0.0015) / np.mean(0.0015) * 100}')
-print(f'mu_a error: {(np.mean(mu_s) - 1.023) / np.mean(1.023) * 100}')
+print(f'mu_a error: {(np.mean(mu_a) - 0.0124) / np.mean(0.0124) * 100}')
+print(f'mu_a error: {(np.mean(mu_s) - 0.930) / np.mean(0.930) * 100}')
 
 fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(8, 6))
 fig.suptitle('Slope Plots')
@@ -227,7 +291,7 @@ ax.set_xlabel('Data Count')
 ax.plot(amplitude_slopes.T[0][0][1], color='darkred', label='Pair 1')
 ax.plot(amplitude_slopes.T[0][1][1], color='darkslateblue', label='Pair 2')
 ax.plot((amplitude_slopes.T[0][0][1]+amplitude_slopes.T[0][1][1])/2, color='black', label='Average')
-ax.axhline(-0.0869, color='darkgreen', label='Expected')
+ax.axhline(0.186, color='darkgreen', label='Expected')
 
 ax = axes[1]
 ax.set_title('Phase Slopes')
@@ -236,7 +300,7 @@ ax.set_xlabel('Data Count')
 ax.plot(phase_slopes.T[0][0][1]*180/np.pi, color='darkred')
 ax.plot(phase_slopes.T[0][1][1]*180/np.pi, color='darkslateblue')
 ax.plot((phase_slopes.T[0][0][1]+phase_slopes.T[0][1][1])/2*180/np.pi, color='black')
-ax.axhline(0.0543*180/np.pi, color='darkgreen')
+ax.axhline(-0.0177*180/np.pi, color='darkgreen')
 
 fig.legend()
 fig.tight_layout()
