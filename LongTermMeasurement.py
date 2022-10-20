@@ -54,12 +54,13 @@ def plot_raw_amplitude_phase(ac, ph, window=None):
         ph_2 = ph.T[1][0][1]
 
     fig, axes = plt.subplots(4, 4, figsize=(12, 8))
-    fig.suptitle(r'Raw AC and $\phi$ for Pair 1')
+    fig.canvas.manager.set_window_title('Raw data')
+    fig.suptitle(r'Raw AC and $\phi$ for both Pairs')
 
     ax = axes[0][0]
     ax.plot(ac_1,
             linewidth=2, color='brown')
-    ax.set_title('Pair 1 AC at 25 mm')
+    ax.set_title('Pair 1 AC at 35 mm')
     ax.set_xlabel('Data count')
     ax.set_ylabel('AC (mV)')
 
@@ -67,14 +68,14 @@ def plot_raw_amplitude_phase(ac, ph, window=None):
     ax.plot(100 * rolling_apply(fun=np.std, a=ac_1, w=window) / rolling_apply(fun=np.mean, a=ac_1, w=window),
             linewidth=2, color='brown')
     ax.axhline(0.1, color='black', alpha=1, linewidth=3, linestyle=':')
-    ax.set_title('Pair 1 at 25 mm AC std / mean')
+    ax.set_title('Pair 1 at 35 mm AC std / mean')
     ax.set_xlabel('Data count')
     ax.set_ylabel('%')
 
     ax = axes[0][2]
     ax.plot(ph_1,
             linewidth=2, color='darkslateblue')
-    ax.set_title(r'Pair 1 $\phi$ at 25 mm')
+    ax.set_title(r'Pair 1 $\phi$ at 35 mm')
     ax.set_xlabel('Data count')
     ax.set_ylabel(r'$\phi$ (°)')
 
@@ -82,14 +83,14 @@ def plot_raw_amplitude_phase(ac, ph, window=None):
     ax.plot(rolling_apply(fun=np.std, a=ph_1, w=window),
             linewidth=2, color='darkslateblue')
     ax.axhline(0.1, color='black', alpha=1, linewidth=3, linestyle=':')
-    ax.set_title(r'Pair 1 at 25 mm $\phi$ std / mean')
+    ax.set_title(r'Pair 1 at 35 mm $\phi$ std')
     ax.set_xlabel('Data count')
     ax.set_ylabel(r'$\phi$ (°)')
 
     ax = axes[1][0]
     ax.plot(ac_2,
             linewidth=2, color='brown')
-    ax.set_title('Pair 1 AC at 35 mm')
+    ax.set_title('Pair 1 AC at 25 mm')
     ax.set_xlabel('Data count')
     ax.set_ylabel('AC (mV)')
 
@@ -97,14 +98,14 @@ def plot_raw_amplitude_phase(ac, ph, window=None):
     ax.plot(100 * rolling_apply(fun=np.std, a=ac_2, w=window) / rolling_apply(fun=np.mean, a=ac_2, w=window),
             linewidth=2, color='brown')
     ax.axhline(0.1, color='black', alpha=1, linewidth=3, linestyle=':')
-    ax.set_title('Pair 1 AC at 35 mm std / mean')
+    ax.set_title('Pair 1 AC at 25 mm std / mean')
     ax.set_xlabel('Data count')
     ax.set_ylabel('%')
 
     ax = axes[1][2]
     ax.plot(ph_2,
             linewidth=2, color='darkslateblue')
-    ax.set_title(r'Pair 1 $\phi$ at 35 mm')
+    ax.set_title(r'Pair 1 $\phi$ at 25 mm')
     ax.set_xlabel('Data count')
     ax.set_ylabel(r'$\phi$ (°)')
 
@@ -112,7 +113,7 @@ def plot_raw_amplitude_phase(ac, ph, window=None):
     ax.plot(rolling_apply(fun=np.std, a=ph_2, w=window),
             linewidth=2, color='darkslateblue')
     ax.axhline(0.1, color='black', alpha=1, linewidth=3, linestyle=':')
-    ax.set_title(r'Pair 1 at 35 mm $\phi$ std / mean')
+    ax.set_title(r'Pair 1 at 25 mm $\phi$ std')
     ax.set_xlabel('Data count')
     ax.set_ylabel(r'$\phi$ (°)')
 
@@ -142,7 +143,7 @@ def plot_raw_amplitude_phase(ac, ph, window=None):
     ax.plot(rolling_apply(fun=np.std, a=ph_3, w=window),
             linewidth=2, color='darkslateblue')
     ax.axhline(0.1, color='black', alpha=1, linewidth=3, linestyle=':')
-    ax.set_title(r'Pair 2 at 25 mm $\phi$ std / mean')
+    ax.set_title(r'Pair 2 at 25 mm $\phi$ std')
     ax.set_xlabel('Data count')
     ax.set_ylabel(r'$\phi$ (°)')
 
@@ -164,7 +165,7 @@ def plot_raw_amplitude_phase(ac, ph, window=None):
     ax = axes[3][2]
     ax.plot(ph_4,
             linewidth=2, color='darkslateblue')
-    ax.set_title(r'Pair 2 $\phi$ at 25 mm')
+    ax.set_title(r'Pair 2 $\phi$ at 35 mm')
     ax.set_xlabel('Data count')
     ax.set_ylabel(r'$\phi$ (°)')
 
@@ -172,14 +173,14 @@ def plot_raw_amplitude_phase(ac, ph, window=None):
     ax.plot(rolling_apply(fun=np.std, a=ph_4, w=window),
             linewidth=2, color='darkslateblue')
     ax.axhline(0.1, color='black', alpha=1, linewidth=3, linestyle=':')
-    ax.set_title(r'Pair 2 at 25 mm $\phi$ std / mean')
+    ax.set_title(r'Pair 2 at 35 mm $\phi$ std')
     ax.set_xlabel('Data count')
     ax.set_ylabel(r'$\phi$ (°)')
 
     fig.tight_layout()
 
 
-def plot_optical_parameters(absorption, scattering, window=None):
+def plot_optical_parameters(absorption, scattering, p_mua=None, p_mus=None, window=None):
     if window is not None:
         absorption = rolling_apply(fun=np.mean, a=absorption, w=window)
         mean_absorption = rolling_apply(fun=np.mean, a=absorption, w=window)
@@ -197,11 +198,13 @@ def plot_optical_parameters(absorption, scattering, window=None):
         std_scattering = np.std(scattering)
 
     fig, axes = plt.subplots(2, 2, figsize=(8, 6))
+    fig.canvas.manager.set_window_title('Optical Parameters')
 
     ax = axes[0][0]
     ax.scatter(np.arange(absorption.size), absorption,
                alpha=0.6, linewidth=2, color='brown', edgecolor='darkred')
-    ax.axhline(0.0124, color='black', alpha=1, linewidth=3, linestyle=':')
+    if p_mus is not None:
+        ax.axhline(p_mua, color='black', alpha=1, linewidth=3, linestyle=':')
     # ax.set_ylim([0.006, 0.012])
     ax.set_title(f'Absorption Coefficient')
     ax.set_xlabel(f'Data points')
@@ -218,7 +221,8 @@ def plot_optical_parameters(absorption, scattering, window=None):
     ax = axes[1][0]
     ax.scatter(np.arange(scattering.size), scattering,
                alpha=0.6, linewidth=2, color='darkslateblue', edgecolor='darkblue')
-    ax.axhline(0.930, color='black', alpha=1, linewidth=3, linestyle=':')
+    if p_mus is not None:
+        ax.axhline(p_mus, color='black', alpha=1, linewidth=3, linestyle=':')
     ax.set_title(f'Reduced Scattering Coefficient')
     ax.set_xlabel(f'Data points')
     ax.set_ylabel(f'1/mm')
@@ -254,15 +258,15 @@ def Slope_Equations_690(S, *data):
     # return [eq1, eq2]
 
 
-date = Path('2022-10-19')
-measurement = Path('DUAL-SLOPE-690-3')
-measurementCount = Path('3')
+date = Path('2022-10-18')
+measurement = Path('DUAL-SLOPE-690-2')
+measurementCount = Path('1')
 location = Path.joinpath(date, measurement, measurementCount)
 
 amplitudeLocation = Path.joinpath(location, Path('amplitude.csv'))
 phaseLocation = Path.joinpath(location, Path('phase.csv'))
 
-p_ua690, p_us690 = 0.0081, 0.761
+p_ua690, p_us690 = 0.0124, 0.930
 
 amplitudes = np.loadtxt(str(amplitudeLocation), delimiter=',')
 amplitudes = amplitudes.reshape((amplitudes.shape[0], 2, 2, 2))
@@ -279,7 +283,7 @@ with open(Path.joinpath(location, Path('measurement settings.json')), 'r') as f:
     settings = json.load(f)
 
 frequency = float(settings['RF']) * 1e6 + float(settings['IF']) * 1e3
-window = 10
+window = 5
 linearizedAmplitudes = linearize_amplitudes(amplitudes, separations)
 
 plot_raw_amplitude_phase(ac=amplitudes, ph=phases, window=window)
@@ -300,32 +304,36 @@ phase_slopes = get_slopes(np.deg2rad(phases), separations)
 mu_a, mu_s = get_optical_properties((amplitude_slopes.T[0][0][1] + amplitude_slopes.T[0][1][1]) / 2,
                                     (phase_slopes.T[0][0][1] + phase_slopes.T[0][1][1]) / 2,
                                     frequency)
-
+amplitude_slopes.T[0][0][1] = rolling_apply(fun=np.mean, a=amplitude_slopes.T[0][0][1], w=window)
+amplitude_slopes.T[0][1][1] = rolling_apply(fun=np.mean, a=amplitude_slopes.T[0][1][1], w=window)
+phase_slopes.T[0][0][1] = rolling_apply(fun=np.mean, a=phase_slopes.T[0][0][1], w=window)
+phase_slopes.T[0][1][1] = rolling_apply(fun=np.mean, a=phase_slopes.T[0][1][1], w=window)
 S = fsolve(Slope_Equations_690, np.array([-0.1, 0.1]), args=(frequency, p_ua690, p_us690))
 
-plot_optical_parameters(mu_a, mu_s, window=window)
+plot_optical_parameters(mu_a, mu_s, p_mua=p_ua690, p_mus=p_us690, window=window)
 print(f'mu_a error: {(np.mean(mu_a) - p_ua690) / np.mean(p_ua690) * 100}')
 print(f'mu_a error: {(np.mean(mu_s) - p_us690) / np.mean(p_us690) * 100}')
 
 fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(8, 6))
+fig.canvas.manager.set_window_title('Slopes')
 fig.suptitle('Slope Plots')
 ax = axes[0]
 ax.set_title('Amplitude Slopes')
 ax.set_ylabel('1/mm')
 ax.set_xlabel('Data Count')
-ax.plot(amplitude_slopes.T[0][0][1], color='darkred', label='Pair 1')
-ax.plot(amplitude_slopes.T[0][1][1], color='darkslateblue', label='Pair 2')
-ax.plot((amplitude_slopes.T[0][0][1]+amplitude_slopes.T[0][1][1])/2, color='black', label='Average')
-ax.axhline(-S[0], color='darkgreen', label='Expected')
+ax.plot(-amplitude_slopes.T[0][0][1], color='darkred', label='Pair 1')
+ax.plot(-amplitude_slopes.T[0][1][1], color='darkslateblue', label='Pair 2')
+ax.plot((-amplitude_slopes.T[0][0][1]+-amplitude_slopes.T[0][1][1])/2, color='black', label='Average')
+ax.axhline(S[0], color='darkgreen', label='Expected')
 
 ax = axes[1]
 ax.set_title('Phase Slopes')
 ax.set_ylabel('°/mm')
 ax.set_xlabel('Data Count')
-ax.plot(phase_slopes.T[0][0][1]*180/np.pi, color='darkred')
-ax.plot(phase_slopes.T[0][1][1]*180/np.pi, color='darkslateblue')
-ax.plot((phase_slopes.T[0][0][1]+phase_slopes.T[0][1][1])/2*180/np.pi, color='black')
-ax.axhline(-S[1]*180/np.pi, color='darkgreen')
+ax.plot(-phase_slopes.T[0][0][1]*180/np.pi, color='darkred')
+ax.plot(-phase_slopes.T[0][1][1]*180/np.pi, color='darkslateblue')
+ax.plot((-phase_slopes.T[0][0][1]+-phase_slopes.T[0][1][1])/2*180/np.pi, color='black')
+ax.axhline(S[1]*180/np.pi, color='darkgreen')
 
 fig.legend()
 fig.tight_layout()
