@@ -258,15 +258,15 @@ def Slope_Equations_690(S, *data):
     # return [eq1, eq2]
 
 
-date = Path('2022-10-18')
-measurement = Path('DUAL-SLOPE-690-2')
-measurementCount = Path('1')
+date = Path('2022-10-25')
+measurement = Path('DUAL-SLOPE-3')
+measurementCount = Path('3')
 location = Path.joinpath(date, measurement, measurementCount)
 
 amplitudeLocation = Path.joinpath(location, Path('amplitude.csv'))
 phaseLocation = Path.joinpath(location, Path('phase.csv'))
 
-p_ua690, p_us690 = 0.0124, 0.930
+p_ua690, p_us690 = 0.0081, 0.761
 
 amplitudes = np.loadtxt(str(amplitudeLocation), delimiter=',')
 amplitudes = amplitudes.reshape((amplitudes.shape[0], 2, 2, 2))
@@ -283,18 +283,22 @@ with open(Path.joinpath(location, Path('measurement settings.json')), 'r') as f:
     settings = json.load(f)
 
 frequency = float(settings['RF']) * 1e6 + float(settings['IF']) * 1e3
-window = 5
+window = 10
 linearizedAmplitudes = linearize_amplitudes(amplitudes, separations)
 
 plot_raw_amplitude_phase(ac=amplitudes, ph=phases, window=window)
 
 amplitude_slopes = get_slopes(linearizedAmplitudes, separations)
+amplitude_slopes_other_way_around = \
+    get_slopes(np.swapaxes(linearizedAmplitudes.reshape(linearizedAmplitudes.shape[0], 2, 2, 2), 3, 2), separations)
 # amplitude_slopes[0] -> 820-1
 # amplitude_slopes[1] -> 690-1
 # amplitude_slopes[2] -> 820-2
 # amplitude_slopes[3] -> 690-2
 
 phase_slopes = get_slopes(np.deg2rad(phases), separations)
+phase_slopes_other_way_around = \
+    get_slopes(np.deg2rad(np.swapaxes(phases, 3, 2)), separations)
 # phase_slopes[0][0][0] -> 820-1
 # phase_slopes[0][0][1] -> 690-1
 # phase_slopes[0][1][0] -> 820-2
@@ -306,8 +310,16 @@ mu_a, mu_s = get_optical_properties((amplitude_slopes.T[0][0][1] + amplitude_slo
                                     frequency)
 amplitude_slopes.T[0][0][1] = rolling_apply(fun=np.mean, a=amplitude_slopes.T[0][0][1], w=window)
 amplitude_slopes.T[0][1][1] = rolling_apply(fun=np.mean, a=amplitude_slopes.T[0][1][1], w=window)
+amplitude_slopes_other_way_around.T[0][0][1] = \
+    rolling_apply(fun=np.mean, a=amplitude_slopes_other_way_around.T[0][0][1], w=window)
+amplitude_slopes_other_way_around.T[0][1][1] = \
+    rolling_apply(fun=np.mean, a=amplitude_slopes_other_way_around.T[0][1][1], w=window)
 phase_slopes.T[0][0][1] = rolling_apply(fun=np.mean, a=phase_slopes.T[0][0][1], w=window)
 phase_slopes.T[0][1][1] = rolling_apply(fun=np.mean, a=phase_slopes.T[0][1][1], w=window)
+phase_slopes_other_way_around.T[0][0][1] = \
+    rolling_apply(fun=np.mean, a=phase_slopes_other_way_around.T[0][0][1], w=window)
+phase_slopes_other_way_around.T[0][1][1] = \
+    rolling_apply(fun=np.mean, a=phase_slopes_other_way_around.T[0][1][1], w=window)
 S = fsolve(Slope_Equations_690, np.array([-0.1, 0.1]), args=(frequency, p_ua690, p_us690))
 
 plot_optical_parameters(mu_a, mu_s, p_mua=p_ua690, p_mus=p_us690, window=window)
@@ -346,5 +358,56 @@ fig.tight_layout()
 # print('asd')
 # print('asd')
 # print(phase_slopes.T[0][0][1])
+
+
+# print(linearizedAmplitudes[0][1])
+# print()
+# print(linearizedAmplitudes[0][1].T)
+# print()
+# print(linearizedAmplitudes.T[0][1])
+# print()
+# print(linearizedAmplitudes.reshape(linearizedAmplitudes.shape[0], 2, 2, 2)[0])
+# print()
+# print(linearizedAmplitudes.reshape(linearizedAmplitudes.shape[0], 2, 2, 2)[0][1].T)
+# print()
+# print(np.swapaxes(linearizedAmplitudes.reshape(linearizedAmplitudes.shape[0], 2, 2, 2), 3, 2)[0])
+# print()
+# print(amplitude_slopes.T[0][0][1])
+# print(amplitude_slopes.T[0][1][1])
+
+fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(8, 6))
+fig.canvas.manager.set_window_title('Slopes')
+fig.suptitle('Slope Plots the other way around')
+ax = axes[0]
+ax.set_title('Amplitude Slopes')
+ax.set_ylabel('1/mm')
+ax.set_xlabel('Data Count')
+ax.plot(-amplitude_slopes_other_way_around.T[0][0][1], color='darkred', label='Pair 1')
+ax.plot(-amplitude_slopes_other_way_around.T[0][1][1], color='darkslateblue', label='Pair 2')
+ax.plot((-amplitude_slopes_other_way_around.T[0][0][1] +
+         -amplitude_slopes_other_way_around.T[0][1][1])/2, color='black', label='Average')
+ax.axhline(S[0], color='darkgreen', label='Expected')
+
+ax = axes[1]
+ax.set_title('Phase Slopes')
+ax.set_ylabel('°/mm')
+ax.set_xlabel('Data Count')
+ax.plot(-phase_slopes_other_way_around.T[0][0][1]*180/np.pi, color='darkred')
+ax.plot(-phase_slopes_other_way_around.T[0][1][1]*180/np.pi, color='darkslateblue')
+ax.plot((-phase_slopes_other_way_around.T[0][0][1] +
+         -phase_slopes_other_way_around.T[0][1][1])/2*180/np.pi, color='black')
+ax.axhline(S[1]*180/np.pi, color='darkgreen')
+
+fig.legend()
+fig.tight_layout()
+
+
+mu_a, mu_s = get_optical_properties((amplitude_slopes_other_way_around.T[0][0][1] +
+                                     amplitude_slopes_other_way_around.T[0][1][1]) / 2,
+                                    (phase_slopes_other_way_around.T[0][0][1] +
+                                     phase_slopes_other_way_around.T[0][1][1]) / 2,
+                                    frequency)
+plot_optical_parameters(mu_a, mu_s, p_mua=p_ua690, p_mus=p_us690, window=window)
+
 
 plt.show()
