@@ -258,9 +258,9 @@ def Slope_Equations_690(S, *data):
     # return [eq1, eq2]
 
 
-date = Path('2022-10-25')
-measurement = Path('DUAL-SLOPE-3')
-measurementCount = Path('2')
+date = Path('2022-11-16')
+measurement = Path('DUAL-SLOPE-690-3')
+measurementCount = Path('6')
 location = Path.joinpath(date, measurement, measurementCount)
 
 amplitudeLocation = Path.joinpath(location, Path('amplitude.csv'))
