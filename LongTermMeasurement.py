@@ -258,9 +258,9 @@ def Slope_Equations_690(S, *data):
     # return [eq1, eq2]
 
 
-date = Path('2022-11-29')
+date = Path('2022-11-30')
 measurement = Path('DUAL-SLOPE-690-3')
-measurementCount = Path('4')
+measurementCount = Path('2')
 location = Path.joinpath(date, measurement, measurementCount)
 
 amplitudeLocation = Path.joinpath(location, Path('amplitude.csv'))
@@ -283,7 +283,7 @@ with open(Path.joinpath(location, Path('measurement settings.json')), 'r') as f:
     settings = json.load(f)
 
 frequency = float(settings['RF']) * 1e6 + float(settings['IF']) * 1e3
-window = 15
+window = 5
 linearizedAmplitudes = linearize_amplitudes(amplitudes, separations)
 
 plot_raw_amplitude_phase(ac=amplitudes, ph=phases, window=window)
