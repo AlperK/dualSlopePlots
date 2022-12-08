@@ -461,15 +461,15 @@ plot_optical_parameters(mu_a_690, mu_s_690, p_mua=p_ua690, p_mus=p_us690, window
 
 plt.close('all')
 
-fig, axes = plt.subplots(ncols=2, figsize=(4, 4), sharex=True)
+fig, axes = plt.subplots(ncols=2, figsize=(4, 3), sharex=True)
 
 # ax = axes[0]
 # divider = make_axes_locatable(ax)
 # ax2 = divider.new_vertical(size='100%', pad=0.1)
 # fig.add_axes(ax2)
-
-axes[0].plot(-amplitude_slopes_other_way_around_690.T[0][0][1], color='blue')
-axes[0].plot(-amplitude_slopes_other_way_around_690.T[0][1][1], color='red')
+axes[0].set_title('Amplitude slopes', fontsize=10)
+axes[0].plot(-amplitude_slopes_other_way_around_690.T[0][0][1], color='blue', label='Pair 1')
+axes[0].plot(-amplitude_slopes_other_way_around_690.T[0][1][1], color='red', label='Pair 2')
 # axes[0].set_ylim([-0.30, -0.05])
 # ax.spines['top'].set_visible(False)
 axes[0].plot((-amplitude_slopes_690.T[0][0][1]+-amplitude_slopes_690.T[0][1][1])/2, color='black', label='Average')
@@ -488,30 +488,63 @@ axes[0].plot((-amplitude_slopes_690.T[0][0][1]+-amplitude_slopes_690.T[0][1][1])
 # kwargs.update(transform=ax.transAxes)  # switch to the bottom axes
 # ax.plot((-d, +d), (1 - d, 1 + d), **kwargs)  # bottom-left diagonal
 # ax.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)  # bottom-right diagonal
-
-axes[1].plot(-phase_slopes_other_way_around_690.T[0][0][1], color='red')
-axes[1].plot(-phase_slopes_other_way_around_690.T[0][1][1], color='red')
+axes[1].set_title('Phase slopes', fontsize=10)
+axes[1].plot(-phase_slopes_other_way_around_690.T[0][0][1], color='red', label='Pair 1')
+axes[1].plot(-phase_slopes_other_way_around_690.T[0][1][1], color='blue', label='Pair 2')
 axes[1].plot((-phase_slopes_690.T[0][0][1]+-phase_slopes_690.T[0][1][1])/2, color='black', label='Average')
 axes[1].axhline(S_690[1], color='green')
 
+axes[0].legend(
+    # bbox_to_anchor=(0., -1.02, 2.5, -1.02),
+    bbox_to_anchor=(0, -0.35, 2.5, -0.0),
+    # bbox_to_anchor=bb,
+    loc='lower left',
+    ncol=2, mode="expand",
+    borderaxespad=0.,
+    prop={'size': 8}
+)
 fig.tight_layout()
 
-fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(4, 4))
+fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(4, 3))
 
+axes[0][0].set_title(r'$\mu_a(mm^{-1})$', fontsize=10)
 axes[0][0].plot(mu_a_690, color='red')
 axes[0][0].axhline(p_ua690, color='green')
 axes[0][0].set_ylim([0.00, 0.015])
-axes[1][0].plot(mu_s_690, color='red')
+
+axes[1][0].set_title(r'$\mu_s\'(mm^{-1})$', fontsize=10)
+l1, = axes[1][0].plot(mu_s_690, color='red', label='690nm')
 axes[1][0].axhline(p_us690, color='green')
 axes[1][0].set_ylim([0.0, 1.5])
 
+axes[0][1].set_title(r'$\mu_a(mm^{-1})$', fontsize=10)
 axes[0][1].plot(mu_a_830, color='darkred')
 axes[0][1].axhline(p_ua830, color='green')
 axes[0][1].set_ylim([0.00, 0.015])
-axes[1][1].plot(mu_s_830, color='darkred')
+
+axes[1][1].set_title(r'$\mu_s\'(mm^{-1})$', fontsize=10)
+l2, = axes[1][1].plot(mu_s_830, color='darkred', label='830nm')
 axes[1][1].axhline(p_us830, color='green')
 axes[1][1].set_ylim([0.0, 1.5])
 
+# handles, labels = axes.get_legend_handles_labels()
+# fig.legend(handles, labels, loc='upper center',
+           # bbox_to_anchor=(0, -0.3, 2.5, -0.5),
+           # )
+# plt.subplots_adjust(hspace=10)
+
+# fig.legend()
+plt.subplots_adjust(hspace=0.0)
 fig.tight_layout()
+axes[1][0].legend(
+    handles=[l1, l2], labels=['690nm', '830nm'],
+    # bbox_to_anchor=(0., -1.02, 2.5, -1.02),
+    bbox_to_anchor=(0, -0.5, 2.5, -0.0),
+    # bbox_to_anchor=bb,
+    loc='lower left',
+    ncol=2, mode="expand",
+    borderaxespad=0.,
+    prop={'size': 8}
+)
 plt.show()
 
