@@ -474,7 +474,7 @@ axes[0].plot(-amplitude_slopes_other_way_around_690.T[0][1][1], color='red', lab
 # ax.spines['top'].set_visible(False)
 axes[0].plot((-amplitude_slopes_690.T[0][0][1]+-amplitude_slopes_690.T[0][1][1])/2, color='black', label='Average')
 # ax.plot((-amplitude_slopes_690.T[0][0][1]+-amplitude_slopes_690.T[0][1][1])/2, color='black', label='Average')
-# ax2.axhline(S_690[0], color='green')
+axes[0].axhline(S_690[0], color='green', label='Known')
 # ax2.set_ylim([-0.20, 0])
 # ax2.spines['bottom'].set_visible(False)
 
@@ -534,17 +534,59 @@ axes[1][1].set_ylim([0.0, 1.5])
 # plt.subplots_adjust(hspace=10)
 
 # fig.legend()
-plt.subplots_adjust(hspace=0.0)
-fig.tight_layout()
+plt.subplots_adjust(hspace=0)
 axes[1][0].legend(
     handles=[l1, l2], labels=['690nm', '830nm'],
     # bbox_to_anchor=(0., -1.02, 2.5, -1.02),
-    bbox_to_anchor=(0, -0.5, 2.5, -0.0),
+    bbox_to_anchor=(0, -0.35, 2.5, -0.0),
     # bbox_to_anchor=bb,
     loc='lower left',
     ncol=2, mode="expand",
     borderaxespad=0.,
     prop={'size': 8}
 )
+fig.tight_layout()
+
+fig, axes = plt.subplots(ncols=2, figsize=(4, 3), sharex=True)
+
+axes[0].set_title(r'$\mu_a (mm^{-1})$', fontsize=10)
+axes[0].plot(mu_a_690, color='darkred', label="Measured")
+axes[0].axhline(p_ua690, color='green', label='Expected')
+axes[0].set_xlabel("Data point")
+axes[0].set_ylabel("$(mm^{-1})$")
+axes[0].set_ylim(0, 0.01)
+
+axes[1].set_title(r"$\mu'_s (mm^{-1})$", fontsize=10)
+axes[1].plot(mu_s_690, color='darkred', label="Measured")
+axes[1].axhline(p_us690, color='green')
+axes[1].set_xlabel("Data point")
+axes[1].set_ylabel("($mm^{-1})$")
+axes[1].set_ylim(0, 1.0)
+
+fig.legend(
+    bbox_to_anchor=(0.2, -0.2, 0.68, 0.5),
+    loc='center',
+    ncol=3, mode="expand",
+    borderaxespad=0.,
+    prop={'size': 8}
+)
+fig.subplots_adjust(left=0.25, right=0.95, wspace=0.6, bottom=0.25)
+
+
+x = amplitudes_690.T[1][0][1]
+x = x[~np.isnan(x)]
+print(f"Amplitude std/mean: {np.std(x)/np.mean(x)*100}")
+
+x = amplitudes_690.T[1][1][1]
+x = x[~np.isnan(x)]
+print(f"Amplitude std/mean: {np.std(x)/np.mean(x)*100}")
+
+x = phases_690.T[1][0][1]
+x = x[~np.isnan(x)]
+print(f"Phase std: {np.std(x)}°")
+
+x = phases_690.T[1][1][1]
+x = x[~np.isnan(x)]
+print(f"Phase std: {np.std(x)}°")
 plt.show()
 
