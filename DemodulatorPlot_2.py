@@ -144,15 +144,20 @@ plt.xticks([0, 30, 60, 90, 120, 150, 180])
 plt.yticks(range(-150, 200, 50))
 
 plt.figure()
-for i in range(0, 1):
-    plt.plot(phases[0][0], phases[i*4, :][1], 'ko--', label=f"{signal[i]} mV", alpha=0.2)
-# plt.xlabel("Phase (°)")
-# plt.ylabel("Demodulator DC output (mV)")
-# plt.title("Demodulator output vs Signal Amplitude")
-# plt.legend()
+for i in range(0, 4):
+    if i != 2:
+        plt.plot(phases[0][0], phases[i*4, :][1], 'o--', label=f"{signal[i]} mV", alpha=0.2)
+    else:
+        plt.plot(phases[0][0], phases[i*4, :][1], 'o--', label=f"{signal[i]} mV", alpha=1, markersize=10)
+
+
+plt.xlabel("Phase (°)")
+plt.ylabel("Demodulator DC output (mV)")
+plt.title("Demodulator output vs Signal Amplitude")
+plt.legend(prop={'size': 16})
 plt.grid()
-plt.xticks([0, 90, 180], fontsize=14)
-plt.yticks([-150, 0, 150], fontsize=14)
+plt.xticks(range(0, 200, 30), fontsize=14)
+plt.yticks(range(-600, 700, 200), fontsize=14)
 plt.show()
 
 

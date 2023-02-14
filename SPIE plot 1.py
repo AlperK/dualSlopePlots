@@ -474,7 +474,9 @@ axes[0].plot(-amplitude_slopes_other_way_around_690.T[0][1][1], color='red', lab
 # ax.spines['top'].set_visible(False)
 axes[0].plot((-amplitude_slopes_690.T[0][0][1]+-amplitude_slopes_690.T[0][1][1])/2, color='black', label='Average')
 # ax.plot((-amplitude_slopes_690.T[0][0][1]+-amplitude_slopes_690.T[0][1][1])/2, color='black', label='Average')
-axes[0].axhline(S_690[0], color='green', label='Known')
+axes[0].axhline(S_690[0], color='green', label='Imagent v2')
+# axes[0].set_xlabel('Data point')
+# axes[1].set_xlabel('Data point')
 # ax2.set_ylim([-0.20, 0])
 # ax2.spines['bottom'].set_visible(False)
 
@@ -489,20 +491,34 @@ axes[0].axhline(S_690[0], color='green', label='Known')
 # ax.plot((-d, +d), (1 - d, 1 + d), **kwargs)  # bottom-left diagonal
 # ax.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs)  # bottom-right diagonal
 axes[1].set_title('Phase slopes', fontsize=10)
-axes[1].plot(-phase_slopes_other_way_around_690.T[0][0][1], color='red', label='Pair 1')
-axes[1].plot(-phase_slopes_other_way_around_690.T[0][1][1], color='blue', label='Pair 2')
-axes[1].plot((-phase_slopes_690.T[0][0][1]+-phase_slopes_690.T[0][1][1])/2, color='black', label='Average')
+axes[1].plot(-phase_slopes_other_way_around_690.T[0][0][1], color='red',
+             # label='Pair 1',
+             )
+axes[1].plot(-phase_slopes_other_way_around_690.T[0][1][1], color='blue',
+             # label='Pair 2',
+             )
+axes[1].plot((-phase_slopes_690.T[0][0][1]+-phase_slopes_690.T[0][1][1])/2, color='black',
+             # label='Average',
+             )
 axes[1].axhline(S_690[1], color='green')
 
-axes[0].legend(
-    # bbox_to_anchor=(0., -1.02, 2.5, -1.02),
-    bbox_to_anchor=(0, -0.35, 2.5, -0.0),
-    # bbox_to_anchor=bb,
-    loc='lower left',
+# axes[0].legend(
+#     # bbox_to_anchor=(0., -1.02, 2.5, -1.02),
+#     bbox_to_anchor=(0, -0.35, 2.5, -0.0),
+#     # bbox_to_anchor=bb,
+#     loc='lower left',
+#     ncol=2, mode="expand",
+#     borderaxespad=0.,
+#     prop={'size': 8}
+# )
+fig.legend(
+    bbox_to_anchor=(0.2, -0.18, 0.68, 0.5),
+    loc='center',
     ncol=2, mode="expand",
     borderaxespad=0.,
     prop={'size': 8}
 )
+fig.subplots_adjust(left=0.25, right=0.95, wspace=0.6, bottom=0.25)
 fig.tight_layout()
 
 fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(4, 3))
