@@ -258,15 +258,16 @@ def Slope_Equations_690(S, *data):
     # return [eq1, eq2]
 
 
-date = Path('2022-11-30')
-measurement = Path('DUAL-SLOPE-690-3')
+date = Path('2022-12-06')
+measurement = Path('DUAL-SLOPE-830')
 measurementCount = Path('2')
 location = Path.joinpath(date, measurement, measurementCount)
 
 amplitudeLocation = Path.joinpath(location, Path('amplitude.csv'))
 phaseLocation = Path.joinpath(location, Path('phase.csv'))
 
-p_ua690, p_us690 = 0.0081, 0.761
+# p_ua690, p_us690 = 0.0081, 0.761
+p_ua690, p_us690 = 0.0077, 0.597
 
 amplitudes = np.loadtxt(str(amplitudeLocation), delimiter=',')
 amplitudes = amplitudes.reshape((amplitudes.shape[0], 2, 2, 2))
@@ -323,8 +324,8 @@ phase_slopes_other_way_around.T[0][1][1] = \
 S = fsolve(Slope_Equations_690, np.array([-0.1, 0.1]), args=(frequency, p_ua690, p_us690))
 
 plot_optical_parameters(mu_a, mu_s, p_mua=p_ua690, p_mus=p_us690, window=window)
-print(f'mu_a error: {(np.mean(mu_a) - p_ua690) / np.mean(p_ua690) * 100}')
-print(f'mu_a error: {(np.mean(mu_s) - p_us690) / np.mean(p_us690) * 100}')
+print(f'mu_a error: {(np.mean(mu_a[~np.isnan(mu_a)]) - p_ua690) / np.mean(p_ua690) * 100}')
+print(f'mu_s error: {(np.mean(mu_s[~np.isnan(mu_s)]) - p_us690) / np.mean(p_us690) * 100}')
 
 fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(8, 6))
 fig.canvas.manager.set_window_title('Slopes')
