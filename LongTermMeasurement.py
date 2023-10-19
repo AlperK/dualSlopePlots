@@ -5,6 +5,34 @@ import json
 from scipy.optimize import fsolve
 
 
+def apply_kalman_1d(initial_estimate,
+                    initial_error_estimate,
+                    error_in_measurement,
+                    meas):
+    initial_kalman_gain = initial_error_estimate / (initial_error_estimate + error_in_measurement)
+    previous_estimate = initial_estimate
+    previous_error_estimate = initial_error_estimate
+    kalman_gain = initial_kalman_gain
+
+    estimates = np.array([])
+
+    for mea in meas:
+        if np.isnan(mea) == False:
+            # print(mea)
+            current_estimate = previous_estimate + kalman_gain * (mea - previous_estimate)
+            estimates = np.append(estimates, [current_estimate])
+            # print(f'currentEstimate = {current_estimate}')
+            # print(estimates)
+            current_error_estimate = (1 - kalman_gain) * previous_error_estimate
+            # print(f'currentErrorEstimate = {current_error_estimate}')
+
+            kalman_gain = current_error_estimate / (current_error_estimate + error_in_measurement)
+            # print(f'kalmanGain = {kalman_gain}')
+            previous_estimate = current_estimate
+
+    return estimates
+
+
 def rolling_apply(fun, a, w):
     r = np.empty(a.shape)
     r.fill(np.nan)
@@ -34,7 +62,9 @@ def get_optical_properties(s_ac, s_p, f):
 
     scattering_coefficient = (np.square(s_ac) - np.square(s_p)) / (3 * absorption_coefficient)
 
-    return absorption_coefficient, scattering_coefficient
+    return (apply_kalman_1d(0.0081, initial_error_estimate=10, error_in_measurement=10,
+                            meas=absorption_coefficient),
+            scattering_coefficient)
 
 
 def plot_raw_amplitude_phase(ac, ph, window=None):
@@ -60,7 +90,10 @@ def plot_raw_amplitude_phase(ac, ph, window=None):
     ax = axes[0][0]
     ax.plot(ac_1,
             linewidth=2, color='brown')
-    ax.set_title('S1-D1 AC at 35 mm')
+    est = apply_kalman_1d(1000, 100, 1000, ac_1)
+    print(est)
+    ax.plot(est, color='green')
+    ax.set_title('Pair 1 AC at 35 mm')
     ax.set_xlabel('Data count')
     ax.set_ylabel('AC (mV)')
 
@@ -68,14 +101,14 @@ def plot_raw_amplitude_phase(ac, ph, window=None):
     ax.plot(100 * rolling_apply(fun=np.std, a=ac_1, w=window) / rolling_apply(fun=np.mean, a=ac_1, w=window),
             linewidth=2, color='brown')
     ax.axhline(0.1, color='black', alpha=1, linewidth=3, linestyle=':')
-    ax.set_title('S1-D1 at 35 mm AC std / mean')
+    ax.set_title('Pair 1 at 35 mm AC std / mean')
     ax.set_xlabel('Data count')
     ax.set_ylabel('%')
 
     ax = axes[0][2]
     ax.plot(ph_1,
             linewidth=2, color='darkslateblue')
-    ax.set_title(r'S1-D1 $\phi$ at 35 mm')
+    ax.set_title(r'Pair 1 $\phi$ at 35 mm')
     ax.set_xlabel('Data count')
     ax.set_ylabel(r'$\phi$ (°)')
 
@@ -83,29 +116,34 @@ def plot_raw_amplitude_phase(ac, ph, window=None):
     ax.plot(rolling_apply(fun=np.std, a=ph_1, w=window),
             linewidth=2, color='darkslateblue')
     ax.axhline(0.1, color='black', alpha=1, linewidth=3, linestyle=':')
-    ax.set_title(r'S1-D1 at 35 mm $\phi$ std')
+    ax.set_title(r'Pair 1 at 35 mm $\phi$ std')
     ax.set_xlabel('Data count')
     ax.set_ylabel(r'$\phi$ (°)')
 
     ax = axes[1][0]
     ax.plot(ac_2,
             linewidth=2, color='brown')
-    ax.set_title('S1-D2 AC at 25 mm')
+    ax.set_title('Pair 1 AC at 25 mm')
     ax.set_xlabel('Data count')
     ax.set_ylabel('AC (mV)')
 
     ax = axes[1][1]
     ax.plot(100 * rolling_apply(fun=np.std, a=ac_2, w=window) / rolling_apply(fun=np.mean, a=ac_2, w=window),
             linewidth=2, color='brown')
+    ax.plot(apply_kalman_1d(0.1, 0.1, 10,
+                            100 * rolling_apply(fun=np.std, a=ac_2, w=window) / rolling_apply(fun=np.mean, a=ac_2, w=window)),
+            color='green')
     ax.axhline(0.1, color='black', alpha=1, linewidth=3, linestyle=':')
-    ax.set_title('S1-D2 AC at 25 mm std / mean')
+    ax.set_title('Pair 1 AC at 25 mm std / mean')
     ax.set_xlabel('Data count')
     ax.set_ylabel('%')
 
     ax = axes[1][2]
     ax.plot(ph_2,
             linewidth=2, color='darkslateblue')
-    ax.set_title(r'S1-D2 $\phi$ at 25 mm')
+    ax.plot(apply_kalman_1d(75, 0.5, 10, ph_2),
+            color='green')
+    ax.set_title(r'Pair 1 $\phi$ at 25 mm')
     ax.set_xlabel('Data count')
     ax.set_ylabel(r'$\phi$ (°)')
 
@@ -113,14 +151,14 @@ def plot_raw_amplitude_phase(ac, ph, window=None):
     ax.plot(rolling_apply(fun=np.std, a=ph_2, w=window),
             linewidth=2, color='darkslateblue')
     ax.axhline(0.1, color='black', alpha=1, linewidth=3, linestyle=':')
-    ax.set_title(r'S1-D2 at 25 mm $\phi$ std')
+    ax.set_title(r'Pair 1 at 25 mm $\phi$ std')
     ax.set_xlabel('Data count')
     ax.set_ylabel(r'$\phi$ (°)')
 
     ax = axes[2][0]
     ax.plot(ac_3,
             linewidth=2, color='brown')
-    ax.set_title('S2-D1 AC at 25 mm')
+    ax.set_title('Pair 2 AC at 25 mm')
     ax.set_xlabel('Data count')
     ax.set_ylabel('AC (mV)')
 
@@ -128,14 +166,14 @@ def plot_raw_amplitude_phase(ac, ph, window=None):
     ax.plot(100 * rolling_apply(fun=np.std, a=ac_3, w=window) / rolling_apply(fun=np.mean, a=ac_3, w=window),
             linewidth=2, color='brown')
     ax.axhline(0.1, color='black', alpha=1, linewidth=3, linestyle=':')
-    ax.set_title('S2-D1 at 25 mm AC std / mean')
+    ax.set_title('Pair 2 at 25 mm AC std / mean')
     ax.set_xlabel('Data count')
     ax.set_ylabel('%')
 
     ax = axes[2][2]
     ax.plot(ph_3,
             linewidth=2, color='darkslateblue')
-    ax.set_title(r'S2-D1 $\phi$ at 25 mm')
+    ax.set_title(r'Pair 2 $\phi$ at 25 mm')
     ax.set_xlabel('Data count')
     ax.set_ylabel(r'$\phi$ (°)')
 
@@ -143,14 +181,14 @@ def plot_raw_amplitude_phase(ac, ph, window=None):
     ax.plot(rolling_apply(fun=np.std, a=ph_3, w=window),
             linewidth=2, color='darkslateblue')
     ax.axhline(0.1, color='black', alpha=1, linewidth=3, linestyle=':')
-    ax.set_title(r'S2-D1 at 25 mm $\phi$ std')
+    ax.set_title(r'Pair 2 at 25 mm $\phi$ std')
     ax.set_xlabel('Data count')
     ax.set_ylabel(r'$\phi$ (°)')
 
     ax = axes[3][0]
     ax.plot(ac_4,
             linewidth=2, color='brown')
-    ax.set_title('S2-D2 AC at 35 mm')
+    ax.set_title('Pair 2 AC at 35 mm')
     ax.set_xlabel('Data count')
     ax.set_ylabel('AC (mV)')
 
@@ -158,14 +196,14 @@ def plot_raw_amplitude_phase(ac, ph, window=None):
     ax.plot(100 * rolling_apply(fun=np.std, a=ac_4, w=window) / rolling_apply(fun=np.mean, a=ac_4, w=window),
             linewidth=2, color='brown')
     ax.axhline(0.1, color='black', alpha=1, linewidth=3, linestyle=':')
-    ax.set_title('S2-D2 at 35 mm AC std / mean')
+    ax.set_title('Pair 2 at 35 mm AC std / mean')
     ax.set_xlabel('Data count')
     ax.set_ylabel('%')
 
     ax = axes[3][2]
     ax.plot(ph_4,
             linewidth=2, color='darkslateblue')
-    ax.set_title(r'S2-D2 $\phi$ at 35 mm')
+    ax.set_title(r'Pair 2 $\phi$ at 35 mm')
     ax.set_xlabel('Data count')
     ax.set_ylabel(r'$\phi$ (°)')
 
@@ -173,7 +211,7 @@ def plot_raw_amplitude_phase(ac, ph, window=None):
     ax.plot(rolling_apply(fun=np.std, a=ph_4, w=window),
             linewidth=2, color='darkslateblue')
     ax.axhline(0.1, color='black', alpha=1, linewidth=3, linestyle=':')
-    ax.set_title(r'S2-D2 at 35 mm $\phi$ std')
+    ax.set_title(r'Pair 2 at 35 mm $\phi$ std')
     ax.set_xlabel('Data count')
     ax.set_ylabel(r'$\phi$ (°)')
 
@@ -258,16 +296,16 @@ def Slope_Equations_690(S, *data):
     # return [eq1, eq2]
 
 
-date = Path('2023-10-05')
-measurement = Path('Dual-Slope-690')
+date = Path('2022-12-06')
+measurement = Path('DUAL-SLOPE-830')
 measurementCount = Path('2')
 location = Path.joinpath(date, measurement, measurementCount)
 
 amplitudeLocation = Path.joinpath(location, Path('amplitude.csv'))
 phaseLocation = Path.joinpath(location, Path('phase.csv'))
 
-p_ua690, p_us690 = 0.0081, 0.761
-# p_ua690, p_us690 = 0.0077, 0.597
+# p_ua690, p_us690 = 0.0081, 0.761
+p_ua690, p_us690 = 0.0077, 0.597
 
 amplitudes = np.loadtxt(str(amplitudeLocation), delimiter=',')
 amplitudes = amplitudes.reshape((amplitudes.shape[0], 2, 2, 2))
