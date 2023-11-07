@@ -62,22 +62,22 @@ def get_optical_properties(s_ac, s_p, f):
 
     scattering_coefficient = (np.square(s_ac) - np.square(s_p)) / (3 * absorption_coefficient)
 
-    # return (apply_kalman_1d(0.0081, initial_error_estimate=10, error_in_measurement=10,
-    #                         meas=absorption_coefficient),
-    #         scattering_coefficient)
-    return absorption_coefficient, scattering_coefficient
+    return (apply_kalman_1d(0.0077, initial_error_estimate=10, error_in_measurement=10,
+                            meas=absorption_coefficient),
+            scattering_coefficient)
+    # return absorption_coefficient, scattering_coefficient
 
 
 def plot_raw_amplitude_phase(ac, ph, window=None):
     if window is not None:
-        ac_1 = rolling_apply(fun=np.mean, a=ac.T[0][0][1], w=window)
-        ac_2 = rolling_apply(fun=np.mean, a=ac.T[1][0][1], w=window)
-        ac_3 = rolling_apply(fun=np.mean, a=ac.T[0][1][1], w=window)
-        ac_4 = rolling_apply(fun=np.mean, a=ac.T[1][1][1], w=window)
-        ph_1 = rolling_apply(fun=np.mean, a=ph.T[0][0][1], w=window)
-        ph_2 = rolling_apply(fun=np.mean, a=ph.T[1][0][1], w=window)
-        ph_3 = rolling_apply(fun=np.mean, a=ph.T[0][1][1], w=window)
-        ph_4 = rolling_apply(fun=np.mean, a=ph.T[1][1][1], w=window)
+        ac_1 = rolling_apply(fun=np.mean, a=ac.T[0][0][0], w=window)
+        ac_2 = rolling_apply(fun=np.mean, a=ac.T[1][0][0], w=window)
+        ac_3 = rolling_apply(fun=np.mean, a=ac.T[0][1][0], w=window)
+        ac_4 = rolling_apply(fun=np.mean, a=ac.T[1][1][0], w=window)
+        ph_1 = rolling_apply(fun=np.mean, a=ph.T[0][0][0], w=window)
+        ph_2 = rolling_apply(fun=np.mean, a=ph.T[1][0][0], w=window)
+        ph_3 = rolling_apply(fun=np.mean, a=ph.T[0][1][0], w=window)
+        ph_4 = rolling_apply(fun=np.mean, a=ph.T[1][1][0], w=window)
     else:
         ac_1 = ac.T[0][0][1]
         ac_2 = ac.T[1][0][1]
@@ -91,11 +91,11 @@ def plot_raw_amplitude_phase(ac, ph, window=None):
     ax = axes[0][0]
     ax.plot(ac_1,
             linewidth=2, color='brown')
-    # est = apply_kalman_1d(1000, 100, 1000, ac_1)
+    est = apply_kalman_1d(ac_1[4], 100, 1000, ac_1)
     # print(est)
-    # ax.plot(est, color='green')
+    ax.plot(est, color='green')
     ax.set_title('Pair 1 AC at 35 mm')
-    ax.set_xlabel('Data count')
+    ax.set_xlabel('Data point')
     ax.set_ylabel('AC (mV)')
 
     ax = axes[0][1]
@@ -103,14 +103,14 @@ def plot_raw_amplitude_phase(ac, ph, window=None):
             linewidth=2, color='brown')
     ax.axhline(0.1, color='black', alpha=1, linewidth=3, linestyle=':')
     ax.set_title('Pair 1 at 35 mm AC std / mean')
-    ax.set_xlabel('Data count')
+    ax.set_xlabel('Data point')
     ax.set_ylabel('%')
 
     ax = axes[0][2]
     ax.plot(ph_1,
             linewidth=2, color='darkslateblue')
     ax.set_title(r'Pair 1 $\phi$ at 35 mm')
-    ax.set_xlabel('Data count')
+    ax.set_xlabel('Data point')
     ax.set_ylabel(r'$\phi$ (°)')
 
     ax = axes[0][3]
@@ -118,34 +118,34 @@ def plot_raw_amplitude_phase(ac, ph, window=None):
             linewidth=2, color='darkslateblue')
     ax.axhline(0.1, color='black', alpha=1, linewidth=3, linestyle=':')
     ax.set_title(r'Pair 1 at 35 mm $\phi$ std')
-    ax.set_xlabel('Data count')
+    ax.set_xlabel('Data point')
     ax.set_ylabel(r'$\phi$ (°)')
 
     ax = axes[1][0]
     ax.plot(ac_2,
             linewidth=2, color='brown')
     ax.set_title('Pair 1 AC at 25 mm')
-    ax.set_xlabel('Data count')
+    ax.set_xlabel('Data point')
     ax.set_ylabel('AC (mV)')
 
     ax = axes[1][1]
     ax.plot(100 * rolling_apply(fun=np.std, a=ac_2, w=window) / rolling_apply(fun=np.mean, a=ac_2, w=window),
             linewidth=2, color='brown')
-    # ax.plot(apply_kalman_1d(0.1, 0.1, 10,
-    #                         100 * rolling_apply(fun=np.std, a=ac_2, w=window) / rolling_apply(fun=np.mean, a=ac_2, w=window)),
-    #         color='green')
+    ax.plot(apply_kalman_1d(0.1, 0.1, 10,
+                            100 * rolling_apply(fun=np.std, a=ac_2, w=window) / rolling_apply(fun=np.mean, a=ac_2, w=window)),
+            color='green')
     ax.axhline(0.1, color='black', alpha=1, linewidth=3, linestyle=':')
     ax.set_title('Pair 1 AC at 25 mm std / mean')
-    ax.set_xlabel('Data count')
+    ax.set_xlabel('Data point')
     ax.set_ylabel('%')
 
     ax = axes[1][2]
     ax.plot(ph_2,
             linewidth=2, color='darkslateblue')
-    # ax.plot(apply_kalman_1d(75, 0.5, 10, ph_2),
-    #         color='green')
+    ax.plot(apply_kalman_1d(ph_2[4], 0.5, 10, ph_2),
+            color='green')
     ax.set_title(r'Pair 1 $\phi$ at 25 mm')
-    ax.set_xlabel('Data count')
+    ax.set_xlabel('Data point')
     ax.set_ylabel(r'$\phi$ (°)')
 
     ax = axes[1][3]
@@ -153,14 +153,14 @@ def plot_raw_amplitude_phase(ac, ph, window=None):
             linewidth=2, color='darkslateblue')
     ax.axhline(0.1, color='black', alpha=1, linewidth=3, linestyle=':')
     ax.set_title(r'Pair 1 at 25 mm $\phi$ std')
-    ax.set_xlabel('Data count')
+    ax.set_xlabel('Data point')
     ax.set_ylabel(r'$\phi$ (°)')
 
     ax = axes[2][0]
     ax.plot(ac_3,
             linewidth=2, color='brown')
     ax.set_title('Pair 2 AC at 25 mm')
-    ax.set_xlabel('Data count')
+    ax.set_xlabel('Data point')
     ax.set_ylabel('AC (mV)')
 
     ax = axes[2][1]
@@ -168,14 +168,14 @@ def plot_raw_amplitude_phase(ac, ph, window=None):
             linewidth=2, color='brown')
     ax.axhline(0.1, color='black', alpha=1, linewidth=3, linestyle=':')
     ax.set_title('Pair 2 at 25 mm AC std / mean')
-    ax.set_xlabel('Data count')
+    ax.set_xlabel('Data point')
     ax.set_ylabel('%')
 
     ax = axes[2][2]
     ax.plot(ph_3,
             linewidth=2, color='darkslateblue')
     ax.set_title(r'Pair 2 $\phi$ at 25 mm')
-    ax.set_xlabel('Data count')
+    ax.set_xlabel('Data point')
     ax.set_ylabel(r'$\phi$ (°)')
 
     ax = axes[2][3]
@@ -183,14 +183,14 @@ def plot_raw_amplitude_phase(ac, ph, window=None):
             linewidth=2, color='darkslateblue')
     ax.axhline(0.1, color='black', alpha=1, linewidth=3, linestyle=':')
     ax.set_title(r'Pair 2 at 25 mm $\phi$ std')
-    ax.set_xlabel('Data count')
+    ax.set_xlabel('Data point')
     ax.set_ylabel(r'$\phi$ (°)')
 
     ax = axes[3][0]
     ax.plot(ac_4,
             linewidth=2, color='brown')
     ax.set_title('Pair 2 AC at 35 mm')
-    ax.set_xlabel('Data count')
+    ax.set_xlabel('Data point')
     ax.set_ylabel('AC (mV)')
 
     ax = axes[3][1]
@@ -198,14 +198,14 @@ def plot_raw_amplitude_phase(ac, ph, window=None):
             linewidth=2, color='brown')
     ax.axhline(0.1, color='black', alpha=1, linewidth=3, linestyle=':')
     ax.set_title('Pair 2 at 35 mm AC std / mean')
-    ax.set_xlabel('Data count')
+    ax.set_xlabel('Data point')
     ax.set_ylabel('%')
 
     ax = axes[3][2]
     ax.plot(ph_4,
             linewidth=2, color='darkslateblue')
     ax.set_title(r'Pair 2 $\phi$ at 35 mm')
-    ax.set_xlabel('Data count')
+    ax.set_xlabel('Data point')
     ax.set_ylabel(r'$\phi$ (°)')
 
     ax = axes[3][3]
@@ -213,7 +213,7 @@ def plot_raw_amplitude_phase(ac, ph, window=None):
             linewidth=2, color='darkslateblue')
     ax.axhline(0.1, color='black', alpha=1, linewidth=3, linestyle=':')
     ax.set_title(r'Pair 2 at 35 mm $\phi$ std')
-    ax.set_xlabel('Data count')
+    ax.set_xlabel('Data point')
     ax.set_ylabel(r'$\phi$ (°)')
 
     fig.tight_layout()
@@ -297,6 +297,26 @@ def Slope_Equations_690(S, *data):
     # return [eq1, eq2]
 
 
+def Slope_Equations_830(S, *data):
+    RF = data[0]
+    ua830 = data[1]
+    us830 = data[2]
+
+    Sac, Sp = S[0], S[1]
+    # RF = 81.001e6
+    # ua690 = 0.0124
+    # us690 = 0.930
+
+    w = 2 * np.pi * RF
+    v = 3e11 / 1.4
+
+    eq1 = (Sp / Sac - Sac / Sp) * (w / (2 * v))
+    eq2 = (Sac ** 2 - Sp ** 2) / (3 * ua830)
+
+    return [eq1 - ua830, eq2 - us830]
+    # return [eq1, eq2]
+
+
 date = Path('2023-11-06')
 measurement = Path('DUAL-SLOPE-830-3')
 measurementCount = Path('4')
@@ -311,7 +331,7 @@ p_ua830, p_us830 = 0.0077, 0.597
 
 amplitudes = np.loadtxt(str(amplitudeLocation), delimiter=',')
 amplitudes = amplitudes.reshape((amplitudes.shape[0], 2, 2, 2))
-
+# print(amplitudes)
 phases = np.loadtxt(str(phaseLocation), delimiter=',')
 phases = phases.reshape((phases.shape[0], 2, 2, 2))
 
@@ -330,7 +350,7 @@ linearizedAmplitudes = linearize_amplitudes(amplitudes, separations)
 plot_raw_amplitude_phase(ac=amplitudes[:800], ph=phases[:800], window=window)
 
 amplitude_slopes = get_slopes(linearizedAmplitudes, separations)[:800]
-print(amplitude_slopes)
+# print(amplitude_slopes)
 amplitude_slopes_other_way_around = \
     get_slopes(np.swapaxes(linearizedAmplitudes.reshape(linearizedAmplitudes.shape[0], 2, 2, 2), 3, 2), separations)
 # amplitude_slopes[0] -> 820-1
@@ -355,38 +375,39 @@ mu_a, mu_s = get_optical_properties((amplitude_slopes.T[0][0][0] + amplitude_slo
                                     (phase_slopes.T[0][0][0] + phase_slopes.T[0][1][0]) / 2,
                                     frequency)
 
-amplitude_slopes.T[0][0][1] = rolling_apply(fun=np.mean, a=amplitude_slopes.T[0][0][1][:800], w=window)
-amplitude_slopes.T[0][1][1] = rolling_apply(fun=np.mean, a=amplitude_slopes.T[0][1][1][:800], w=window)
+amplitude_slopes.T[0][0][0] = rolling_apply(fun=np.mean, a=amplitude_slopes.T[0][0][0][:800], w=window)
+amplitude_slopes.T[0][1][0] = rolling_apply(fun=np.mean, a=amplitude_slopes.T[0][1][0][:800], w=window)
 
-amplitude_slopes_other_way_around.T[0][0][1][:800] = \
-    rolling_apply(fun=np.mean, a=amplitude_slopes_other_way_around.T[0][0][1][:800], w=window)
-amplitude_slopes_other_way_around.T[0][1][1][:800] = \
-    rolling_apply(fun=np.mean, a=amplitude_slopes_other_way_around.T[0][1][1][:800], w=window)
+amplitude_slopes_other_way_around.T[0][0][0][:800] = \
+    rolling_apply(fun=np.mean, a=amplitude_slopes_other_way_around.T[0][0][0][:800], w=window)
+amplitude_slopes_other_way_around.T[0][1][0][:800] = \
+    rolling_apply(fun=np.mean, a=amplitude_slopes_other_way_around.T[0][1][0][:800], w=window)
 
-amplitude_slopes.T[1][0][1] = rolling_apply(fun=np.mean, a=amplitude_slopes.T[1][0][1][:800], w=window)
-amplitude_slopes.T[1][1][1] = rolling_apply(fun=np.mean, a=amplitude_slopes.T[1][1][1][:800], w=window)
+amplitude_slopes.T[0][0][0] = rolling_apply(fun=np.mean, a=amplitude_slopes.T[0][0][0][:800], w=window)
+amplitude_slopes.T[0][1][0] = rolling_apply(fun=np.mean, a=amplitude_slopes.T[0][1][0][:800], w=window)
 
-amplitude_slopes_other_way_around.T[1][0][1][:800] = \
-    rolling_apply(fun=np.mean, a=amplitude_slopes_other_way_around.T[1][0][1][:800], w=window)
-amplitude_slopes_other_way_around.T[1][1][1][:800] = \
-    rolling_apply(fun=np.mean, a=amplitude_slopes_other_way_around.T[1][1][1][:800], w=window)
+amplitude_slopes_other_way_around.T[0][0][0][:800] = \
+    rolling_apply(fun=np.mean, a=amplitude_slopes_other_way_around.T[0][0][0][:800], w=window)
+amplitude_slopes_other_way_around.T[0][1][0][:800] = \
+    rolling_apply(fun=np.mean, a=amplitude_slopes_other_way_around.T[0][1][0][:800], w=window)
 
-phase_slopes.T[0][0][1] = rolling_apply(fun=np.mean, a=phase_slopes.T[0][0][1][:800], w=window)
-phase_slopes.T[0][1][1] = rolling_apply(fun=np.mean, a=phase_slopes.T[0][1][1][:800], w=window)
+phase_slopes.T[0][0][0] = rolling_apply(fun=np.mean, a=phase_slopes.T[0][0][0][:800], w=window)
+phase_slopes.T[0][1][0] = rolling_apply(fun=np.mean, a=phase_slopes.T[0][1][0][:800], w=window)
 
-phase_slopes.T[1][0][1] = rolling_apply(fun=np.mean, a=phase_slopes.T[1][0][1][:800], w=window)
-phase_slopes.T[1][1][1] = rolling_apply(fun=np.mean, a=phase_slopes.T[1][1][1][:800], w=window)
-phase_slopes_other_way_around.T[0][0][1][:800] = \
-    rolling_apply(fun=np.mean, a=phase_slopes_other_way_around.T[0][0][1][:800], w=window)
-phase_slopes_other_way_around.T[0][1][1][:800] = \
-    rolling_apply(fun=np.mean, a=phase_slopes_other_way_around.T[0][1][1][:800], w=window)
+phase_slopes.T[0][0][0] = rolling_apply(fun=np.mean, a=phase_slopes.T[0][0][0][:800], w=window)
+phase_slopes.T[0][1][0] = rolling_apply(fun=np.mean, a=phase_slopes.T[0][1][0][:800], w=window)
+phase_slopes_other_way_around.T[0][0][0][:800] = \
+    rolling_apply(fun=np.mean, a=phase_slopes_other_way_around.T[0][0][0][:800], w=window)
+phase_slopes_other_way_around.T[0][1][0][:800] = \
+    rolling_apply(fun=np.mean, a=phase_slopes_other_way_around.T[0][1][0][:800], w=window)
 
-phase_slopes_other_way_around.T[1][0][1][:800] = \
-    rolling_apply(fun=np.mean, a=phase_slopes_other_way_around.T[1][0][1][:800], w=window)
-phase_slopes_other_way_around.T[1][1][1][:800] = \
-    rolling_apply(fun=np.mean, a=phase_slopes_other_way_around.T[1][1][1][:800], w=window)
+phase_slopes_other_way_around.T[0][0][0][:800] = \
+    rolling_apply(fun=np.mean, a=phase_slopes_other_way_around.T[0][0][0][:800], w=window)
+phase_slopes_other_way_around.T[0][1][0][:800] = \
+    rolling_apply(fun=np.mean, a=phase_slopes_other_way_around.T[0][1][0][:800], w=window)
 
-S = fsolve(Slope_Equations_690, np.array([-0.1, 0.1]), args=(frequency, p_ua690, p_us690))
+# S = fsolve(Slope_Equations_690, np.array([-0.1, 0.1]), args=(frequency, p_ua690, p_us690))
+S = fsolve(Slope_Equations_830, np.array([-0.1, 0.1]), args=(frequency, p_ua830, p_us830))
 
 # plot_optical_parameters(mu_a[:800], mu_s[:800], p_mua=p_ua690, p_mus=p_us690, window=window)
 plot_optical_parameters(mu_a[:800], mu_s[:800], p_mua=p_ua830, p_mus=p_us830, window=window)
@@ -399,19 +420,19 @@ fig.suptitle('Slope Plots')
 ax = axes[0]
 ax.set_title('Amplitude Slopes')
 ax.set_ylabel('1/mm')
-ax.set_xlabel('Data Count')
-ax.plot(-amplitude_slopes.T[1][0][1][:800], color='darkred', label='Pair 1')
-ax.plot(-amplitude_slopes.T[1][1][1][:800], color='darkslateblue', label='Pair 2')
-ax.plot((-amplitude_slopes.T[1][0][1][:800]+-amplitude_slopes.T[1][1][1][:800])/2, color='black', label='Average')
+ax.set_xlabel('Data Point')
+ax.plot(amplitude_slopes.T[0][0][0][:800], color='darkred', label='Pair 1')
+ax.plot(amplitude_slopes.T[0][1][0][:800], color='darkslateblue', label='Pair 2')
+ax.plot((amplitude_slopes.T[0][0][0][:800]+amplitude_slopes.T[0][1][0][:800])/2, color='black', label='Average')
 ax.axhline(S[0], color='darkgreen', label='Expected')
 
 ax = axes[1]
 ax.set_title('Phase Slopes')
 ax.set_ylabel('°/mm')
-ax.set_xlabel('Data Count')
-ax.plot(-phase_slopes.T[1][0][1][:800]*180/np.pi, color='darkred')
-ax.plot(-phase_slopes.T[1][1][1][:800]*180/np.pi, color='darkslateblue')
-ax.plot((-phase_slopes.T[1][0][1][:800]+-phase_slopes.T[1][1][1][:800])/2*180/np.pi, color='black')
+ax.set_xlabel('Data Point')
+ax.plot(phase_slopes.T[0][0][0][:800]*180/np.pi, color='darkred')
+ax.plot(phase_slopes.T[0][1][0][:800]*180/np.pi, color='darkslateblue')
+ax.plot((phase_slopes.T[0][0][0][:800]+phase_slopes.T[0][1][0][:800])/2*180/np.pi, color='black')
 ax.axhline(S[1]*180/np.pi, color='darkgreen')
 
 fig.legend()
@@ -448,7 +469,7 @@ fig.tight_layout()
 # ax = axes[0]
 # ax.set_title('Amplitude Slopes')
 # ax.set_ylabel('1/mm')
-# ax.set_xlabel('Data Count')
+# ax.set_xlabel('Data Point')
 # ax.plot(-amplitude_slopes_other_way_around.T[0][0][1][:800], color='darkred', label='Pair 1')
 # ax.plot(-amplitude_slopes_other_way_around.T[0][1][1][:800], color='darkslateblue', label='Pair 2')
 # ax.plot((-amplitude_slopes_other_way_around.T[0][0][1][:800] +
@@ -458,7 +479,7 @@ fig.tight_layout()
 # ax = axes[1]
 # ax.set_title('Phase Slopes')
 # ax.set_ylabel('°/mm')
-# ax.set_xlabel('Data Count')
+# ax.set_xlabel('Data Point')
 # ax.plot(-phase_slopes_other_way_around.T[0][0][1][:800]*180/np.pi, color='darkred')
 # ax.plot(-phase_slopes_other_way_around.T[0][1][1][:800]*180/np.pi, color='darkslateblue')
 # ax.plot((-phase_slopes_other_way_around.T[0][0][1][:800] +
