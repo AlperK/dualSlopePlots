@@ -317,9 +317,9 @@ def Slope_Equations_830(S, *data):
     # return [eq1, eq2]
 
 
-date = Path('2023-11-06')
+date = Path('2023-11-13')
 measurement = Path('DUAL-SLOPE-830-3')
-measurementCount = Path('4')
+measurementCount = Path('2')
 location = Path.joinpath(date, measurement, measurementCount)
 
 amplitudeLocation = Path.joinpath(location, Path('amplitude.csv'))
@@ -347,9 +347,9 @@ frequency = float(settings['RF']) * 1e6 + float(settings['IF']) * 1e3
 window = 5
 linearizedAmplitudes = linearize_amplitudes(amplitudes, separations)
 
-plot_raw_amplitude_phase(ac=amplitudes[:800], ph=phases[:800], window=window)
+plot_raw_amplitude_phase(ac=amplitudes, ph=phases, window=window)
 
-amplitude_slopes = get_slopes(linearizedAmplitudes, separations)[:800]
+amplitude_slopes = get_slopes(linearizedAmplitudes, separations)
 # print(amplitude_slopes)
 amplitude_slopes_other_way_around = \
     get_slopes(np.swapaxes(linearizedAmplitudes.reshape(linearizedAmplitudes.shape[0], 2, 2, 2), 3, 2), separations)
@@ -358,7 +358,7 @@ amplitude_slopes_other_way_around = \
 # amplitude_slopes[2] -> 820-2
 # amplitude_slopes[3] -> 690-2
 
-phase_slopes = get_slopes(np.deg2rad(phases), separations)[:800]
+phase_slopes = get_slopes(np.deg2rad(phases), separations)
 phase_slopes_other_way_around = \
     get_slopes(np.deg2rad(np.swapaxes(phases, 3, 2)), separations)
 # phase_slopes[0][0][0] -> 820-1
@@ -367,52 +367,52 @@ phase_slopes_other_way_around = \
 # phase_slopes[0][1][1] -> 690-2
 
 
-# mu_a, mu_s = get_optical_properties((amplitude_slopes.T[0][0][1][:800] + amplitude_slopes.T[0][1][1][:800]) / 2,
-#                                     (phase_slopes.T[0][0][1][:800] + phase_slopes.T[0][1][1][:800]) / 2,
+# mu_a, mu_s = get_optical_properties((amplitude_slopes.T[0][0][1] + amplitude_slopes.T[0][1][1]) / 2,
+#                                     (phase_slopes.T[0][0][1] + phase_slopes.T[0][1][1]) / 2,
 #                                     frequency)
 
 mu_a, mu_s = get_optical_properties((amplitude_slopes.T[0][0][0] + amplitude_slopes.T[0][1][0]) / 2,
                                     (phase_slopes.T[0][0][0] + phase_slopes.T[0][1][0]) / 2,
                                     frequency)
 
-amplitude_slopes.T[0][0][0] = rolling_apply(fun=np.mean, a=amplitude_slopes.T[0][0][0][:800], w=window)
-amplitude_slopes.T[0][1][0] = rolling_apply(fun=np.mean, a=amplitude_slopes.T[0][1][0][:800], w=window)
+amplitude_slopes.T[0][0][0] = rolling_apply(fun=np.mean, a=amplitude_slopes.T[0][0][0], w=window)
+amplitude_slopes.T[0][1][0] = rolling_apply(fun=np.mean, a=amplitude_slopes.T[0][1][0], w=window)
 
-amplitude_slopes_other_way_around.T[0][0][0][:800] = \
-    rolling_apply(fun=np.mean, a=amplitude_slopes_other_way_around.T[0][0][0][:800], w=window)
-amplitude_slopes_other_way_around.T[0][1][0][:800] = \
-    rolling_apply(fun=np.mean, a=amplitude_slopes_other_way_around.T[0][1][0][:800], w=window)
+amplitude_slopes_other_way_around.T[0][0][0] = \
+    rolling_apply(fun=np.mean, a=amplitude_slopes_other_way_around.T[0][0][0], w=window)
+amplitude_slopes_other_way_around.T[0][1][0] = \
+    rolling_apply(fun=np.mean, a=amplitude_slopes_other_way_around.T[0][1][0], w=window)
 
-amplitude_slopes.T[0][0][0] = rolling_apply(fun=np.mean, a=amplitude_slopes.T[0][0][0][:800], w=window)
-amplitude_slopes.T[0][1][0] = rolling_apply(fun=np.mean, a=amplitude_slopes.T[0][1][0][:800], w=window)
+amplitude_slopes.T[0][0][0] = rolling_apply(fun=np.mean, a=amplitude_slopes.T[0][0][0], w=window)
+amplitude_slopes.T[0][1][0] = rolling_apply(fun=np.mean, a=amplitude_slopes.T[0][1][0], w=window)
 
-amplitude_slopes_other_way_around.T[0][0][0][:800] = \
-    rolling_apply(fun=np.mean, a=amplitude_slopes_other_way_around.T[0][0][0][:800], w=window)
-amplitude_slopes_other_way_around.T[0][1][0][:800] = \
-    rolling_apply(fun=np.mean, a=amplitude_slopes_other_way_around.T[0][1][0][:800], w=window)
+amplitude_slopes_other_way_around.T[0][0][0] = \
+    rolling_apply(fun=np.mean, a=amplitude_slopes_other_way_around.T[0][0][0], w=window)
+amplitude_slopes_other_way_around.T[0][1][0] = \
+    rolling_apply(fun=np.mean, a=amplitude_slopes_other_way_around.T[0][1][0], w=window)
 
-phase_slopes.T[0][0][0] = rolling_apply(fun=np.mean, a=phase_slopes.T[0][0][0][:800], w=window)
-phase_slopes.T[0][1][0] = rolling_apply(fun=np.mean, a=phase_slopes.T[0][1][0][:800], w=window)
+phase_slopes.T[0][0][0] = rolling_apply(fun=np.mean, a=phase_slopes.T[0][0][0], w=window)
+phase_slopes.T[0][1][0] = rolling_apply(fun=np.mean, a=phase_slopes.T[0][1][0], w=window)
 
-phase_slopes.T[0][0][0] = rolling_apply(fun=np.mean, a=phase_slopes.T[0][0][0][:800], w=window)
-phase_slopes.T[0][1][0] = rolling_apply(fun=np.mean, a=phase_slopes.T[0][1][0][:800], w=window)
-phase_slopes_other_way_around.T[0][0][0][:800] = \
-    rolling_apply(fun=np.mean, a=phase_slopes_other_way_around.T[0][0][0][:800], w=window)
-phase_slopes_other_way_around.T[0][1][0][:800] = \
-    rolling_apply(fun=np.mean, a=phase_slopes_other_way_around.T[0][1][0][:800], w=window)
+phase_slopes.T[0][0][0] = rolling_apply(fun=np.mean, a=phase_slopes.T[0][0][0], w=window)
+phase_slopes.T[0][1][0] = rolling_apply(fun=np.mean, a=phase_slopes.T[0][1][0], w=window)
+phase_slopes_other_way_around.T[0][0][0] = \
+    rolling_apply(fun=np.mean, a=phase_slopes_other_way_around.T[0][0][0], w=window)
+phase_slopes_other_way_around.T[0][1][0] = \
+    rolling_apply(fun=np.mean, a=phase_slopes_other_way_around.T[0][1][0], w=window)
 
-phase_slopes_other_way_around.T[0][0][0][:800] = \
-    rolling_apply(fun=np.mean, a=phase_slopes_other_way_around.T[0][0][0][:800], w=window)
-phase_slopes_other_way_around.T[0][1][0][:800] = \
-    rolling_apply(fun=np.mean, a=phase_slopes_other_way_around.T[0][1][0][:800], w=window)
+phase_slopes_other_way_around.T[0][0][0] = \
+    rolling_apply(fun=np.mean, a=phase_slopes_other_way_around.T[0][0][0], w=window)
+phase_slopes_other_way_around.T[0][1][0] = \
+    rolling_apply(fun=np.mean, a=phase_slopes_other_way_around.T[0][1][0], w=window)
 
 # S = fsolve(Slope_Equations_690, np.array([-0.1, 0.1]), args=(frequency, p_ua690, p_us690))
 S = fsolve(Slope_Equations_830, np.array([-0.1, 0.1]), args=(frequency, p_ua830, p_us830))
 
-# plot_optical_parameters(mu_a[:800], mu_s[:800], p_mua=p_ua690, p_mus=p_us690, window=window)
-plot_optical_parameters(mu_a[:800], mu_s[:800], p_mua=p_ua830, p_mus=p_us830, window=window)
-print(f'mu_a error: {(np.mean(mu_a[~np.isnan(mu_a)][:800]) - p_ua830) / np.mean(p_ua830) * 100}')
-print(f'mu_s error: {(np.mean(mu_s[~np.isnan(mu_s)][:800]) - p_us830) / np.mean(p_us830) * 100}')
+# plot_optical_parameters(mu_a, mu_s, p_mua=p_ua690, p_mus=p_us690, window=window)
+plot_optical_parameters(mu_a, mu_s, p_mua=p_ua830, p_mus=p_us830, window=window)
+print(f'mu_a error: {(np.mean(mu_a[~np.isnan(mu_a)]) - p_ua830) / np.mean(p_ua830) * 100}')
+print(f'mu_s error: {(np.mean(mu_s[~np.isnan(mu_s)]) - p_us830) / np.mean(p_us830) * 100}')
 
 fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(8, 6))
 fig.canvas.manager.set_window_title('Slopes')
@@ -421,18 +421,18 @@ ax = axes[0]
 ax.set_title('Amplitude Slopes')
 ax.set_ylabel('1/mm')
 ax.set_xlabel('Data Point')
-ax.plot(amplitude_slopes.T[0][0][0][:800], color='darkred', label='Pair 1')
-ax.plot(amplitude_slopes.T[0][1][0][:800], color='darkslateblue', label='Pair 2')
-ax.plot((amplitude_slopes.T[0][0][0][:800]+amplitude_slopes.T[0][1][0][:800])/2, color='black', label='Average')
+ax.plot(amplitude_slopes.T[0][0][0], color='darkred', label='Pair 1')
+ax.plot(amplitude_slopes.T[0][1][0], color='darkslateblue', label='Pair 2')
+ax.plot((amplitude_slopes.T[0][0][0]+amplitude_slopes.T[0][1][0])/2, color='black', label='Average')
 ax.axhline(S[0], color='darkgreen', label='Expected')
 
 ax = axes[1]
 ax.set_title('Phase Slopes')
 ax.set_ylabel('°/mm')
 ax.set_xlabel('Data Point')
-ax.plot(phase_slopes.T[0][0][0][:800]*180/np.pi, color='darkred')
-ax.plot(phase_slopes.T[0][1][0][:800]*180/np.pi, color='darkslateblue')
-ax.plot((phase_slopes.T[0][0][0][:800]+phase_slopes.T[0][1][0][:800])/2*180/np.pi, color='black')
+ax.plot(phase_slopes.T[0][0][0]*180/np.pi, color='darkred')
+ax.plot(phase_slopes.T[0][1][0]*180/np.pi, color='darkslateblue')
+ax.plot((phase_slopes.T[0][0][0]+phase_slopes.T[0][1][0])/2*180/np.pi, color='black')
 ax.axhline(S[1]*180/np.pi, color='darkgreen')
 
 fig.legend()
@@ -470,20 +470,20 @@ fig.tight_layout()
 # ax.set_title('Amplitude Slopes')
 # ax.set_ylabel('1/mm')
 # ax.set_xlabel('Data Point')
-# ax.plot(-amplitude_slopes_other_way_around.T[0][0][1][:800], color='darkred', label='Pair 1')
-# ax.plot(-amplitude_slopes_other_way_around.T[0][1][1][:800], color='darkslateblue', label='Pair 2')
-# ax.plot((-amplitude_slopes_other_way_around.T[0][0][1][:800] +
-#          -amplitude_slopes_other_way_around.T[0][1][1][:800])/2, color='black', label='Average')
+# ax.plot(-amplitude_slopes_other_way_around.T[0][0][1], color='darkred', label='Pair 1')
+# ax.plot(-amplitude_slopes_other_way_around.T[0][1][1], color='darkslateblue', label='Pair 2')
+# ax.plot((-amplitude_slopes_other_way_around.T[0][0][1] +
+#          -amplitude_slopes_other_way_around.T[0][1][1])/2, color='black', label='Average')
 # ax.axhline(S[0], color='darkgreen', label='Expected')
 
 # ax = axes[1]
 # ax.set_title('Phase Slopes')
 # ax.set_ylabel('°/mm')
 # ax.set_xlabel('Data Point')
-# ax.plot(-phase_slopes_other_way_around.T[0][0][1][:800]*180/np.pi, color='darkred')
-# ax.plot(-phase_slopes_other_way_around.T[0][1][1][:800]*180/np.pi, color='darkslateblue')
-# ax.plot((-phase_slopes_other_way_around.T[0][0][1][:800] +
-#          -phase_slopes_other_way_around.T[0][1][1][:800])/2*180/np.pi, color='black')
+# ax.plot(-phase_slopes_other_way_around.T[0][0][1]*180/np.pi, color='darkred')
+# ax.plot(-phase_slopes_other_way_around.T[0][1][1]*180/np.pi, color='darkslateblue')
+# ax.plot((-phase_slopes_other_way_around.T[0][0][1] +
+#          -phase_slopes_other_way_around.T[0][1][1])/2*180/np.pi, color='black')
 # ax.axhline(S[1]*180/np.pi, color='darkgreen')
 
 fig.legend()
@@ -495,7 +495,7 @@ fig.tight_layout()
 #                                     (phase_slopes_other_way_around.T[0][0][1] +
 #                                      phase_slopes_other_way_around.T[0][1][1]) / 2,
 #                                     frequency)
-# plot_optical_parameters(mu_a[:800], mu_s[:800], p_mua=p_ua690, p_mus=p_us690, window=window)
+# plot_optical_parameters(mu_a, mu_s, p_mua=p_ua690, p_mus=p_us690, window=window)
 
 
 plt.show()
