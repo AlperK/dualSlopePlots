@@ -86,14 +86,14 @@ def plot_raw_amplitude_phase(ac, ph, window=None):
 
     fig, axes = plt.subplots(4, 4, figsize=(12, 8))
     fig.canvas.manager.set_window_title('Raw data')
-    fig.suptitle(r'Raw AC and $\phi$ for both Pairs')
+    fig.suptitle(r'Raw AC and $\phi$ for both Pairs for 830nm')
 
     ax = axes[0][0]
     ax.plot(ac_1,
             linewidth=2, color='brown')
-    est = apply_kalman_1d(ac_1[4], 100, 1000, ac_1)
-    # print(est)
-    ax.plot(est, color='green')
+    # est = apply_kalman_1d(ac_3[4], 100, 1000, ac_3)
+    # # print(est)
+    # ax.plot(est, color='green')
     ax.set_title('Pair 1 AC at 35 mm')
     ax.set_xlabel('Data point')
     ax.set_ylabel('AC (mV)')
@@ -131,9 +131,9 @@ def plot_raw_amplitude_phase(ac, ph, window=None):
     ax = axes[1][1]
     ax.plot(100 * rolling_apply(fun=np.std, a=ac_2, w=window) / rolling_apply(fun=np.mean, a=ac_2, w=window),
             linewidth=2, color='brown')
-    ax.plot(apply_kalman_1d(0.1, 0.1, 10,
-                            100 * rolling_apply(fun=np.std, a=ac_2, w=window) / rolling_apply(fun=np.mean, a=ac_2, w=window)),
-            color='green')
+    # ax.plot(apply_kalman_1d(0.1, 0.1, 10,
+    #                         100 * rolling_apply(fun=np.std, a=ac_4, w=window) / rolling_apply(fun=np.mean, a=ac_4, w=window)),
+    #         color='green')
     ax.axhline(0.1, color='black', alpha=1, linewidth=3, linestyle=':')
     ax.set_title('Pair 1 AC at 25 mm std / mean')
     ax.set_xlabel('Data point')
@@ -142,8 +142,8 @@ def plot_raw_amplitude_phase(ac, ph, window=None):
     ax = axes[1][2]
     ax.plot(ph_2,
             linewidth=2, color='darkslateblue')
-    ax.plot(apply_kalman_1d(ph_2[4], 0.5, 10, ph_2),
-            color='green')
+    # ax.plot(apply_kalman_1d(ph_2[4], 0.5, 10, ph_2),
+    #         color='green')
     ax.set_title(r'Pair 1 $\phi$ at 25 mm')
     ax.set_xlabel('Data point')
     ax.set_ylabel(r'$\phi$ (°)')
@@ -238,6 +238,7 @@ def plot_optical_parameters(absorption, scattering, p_mua=None, p_mus=None, wind
 
     fig, axes = plt.subplots(2, 2, figsize=(8, 6))
     fig.canvas.manager.set_window_title('Optical Parameters')
+    fig.suptitle(r'Optical Parameters for 690nm')
 
     ax = axes[0][0]
     ax.scatter(np.arange(absorption.size), absorption,
@@ -317,9 +318,9 @@ def Slope_Equations_830(S, *data):
     # return [eq1, eq2]
 
 
-date = Path('2023-11-13')
-measurement = Path('DUAL-SLOPE-830-3')
-measurementCount = Path('2')
+date = Path('2023-11-16')
+measurement = Path('DUAL-SLOPE-BOTH-3')
+measurementCount = Path('1')
 location = Path.joinpath(date, measurement, measurementCount)
 
 amplitudeLocation = Path.joinpath(location, Path('amplitude.csv'))
@@ -331,7 +332,15 @@ p_ua830, p_us830 = 0.0077, 0.597
 
 amplitudes = np.loadtxt(str(amplitudeLocation), delimiter=',')
 amplitudes = amplitudes.reshape((amplitudes.shape[0], 2, 2, 2))
-# print(amplitudes)
+# print(amplitudes.size)
+# print(amplitudes.shape)
+# print(amplitudes.T[0][0][1])
+# print(amplitudes.T[1][0][1])
+# print(amplitudes.T[0][1][1])
+# print(amplitudes.T[1][1][1])
+
+
+
 phases = np.loadtxt(str(phaseLocation), delimiter=',')
 phases = phases.reshape((phases.shape[0], 2, 2, 2))
 
@@ -354,8 +363,8 @@ amplitude_slopes = get_slopes(linearizedAmplitudes, separations)
 amplitude_slopes_other_way_around = \
     get_slopes(np.swapaxes(linearizedAmplitudes.reshape(linearizedAmplitudes.shape[0], 2, 2, 2), 3, 2), separations)
 # amplitude_slopes[0] -> 820-1
-# amplitude_slopes[1] -> 690-1
 # amplitude_slopes[2] -> 820-2
+# amplitude_slopes[1] -> 690-1
 # amplitude_slopes[3] -> 690-2
 
 phase_slopes = get_slopes(np.deg2rad(phases), separations)
@@ -371,8 +380,8 @@ phase_slopes_other_way_around = \
 #                                     (phase_slopes.T[0][0][1] + phase_slopes.T[0][1][1]) / 2,
 #                                     frequency)
 
-mu_a, mu_s = get_optical_properties((amplitude_slopes.T[0][0][0] + amplitude_slopes.T[0][1][0]) / 2,
-                                    (phase_slopes.T[0][0][0] + phase_slopes.T[0][1][0]) / 2,
+mu_a, mu_s = get_optical_properties((amplitude_slopes.T[0][0][1] + amplitude_slopes.T[0][1][1]) / 2,
+                                    (phase_slopes.T[0][0][1] + phase_slopes.T[0][1][1]) / 2,
                                     frequency)
 
 amplitude_slopes.T[0][0][0] = rolling_apply(fun=np.mean, a=amplitude_slopes.T[0][0][0], w=window)
@@ -410,9 +419,9 @@ phase_slopes_other_way_around.T[0][1][0] = \
 S = fsolve(Slope_Equations_830, np.array([-0.1, 0.1]), args=(frequency, p_ua830, p_us830))
 
 # plot_optical_parameters(mu_a, mu_s, p_mua=p_ua690, p_mus=p_us690, window=window)
-plot_optical_parameters(mu_a, mu_s, p_mua=p_ua830, p_mus=p_us830, window=window)
-print(f'mu_a error: {(np.mean(mu_a[~np.isnan(mu_a)]) - p_ua830) / np.mean(p_ua830) * 100}')
-print(f'mu_s error: {(np.mean(mu_s[~np.isnan(mu_s)]) - p_us830) / np.mean(p_us830) * 100}')
+plot_optical_parameters(mu_a, mu_s, p_mua=p_ua690, p_mus=p_us690, window=window)
+print(f'mu_a error: {(np.mean(mu_a[~np.isnan(mu_a)]) - p_ua690) / np.mean(p_ua690) * 100}')
+print(f'mu_s error: {(np.mean(mu_s[~np.isnan(mu_s)]) - p_us690) / np.mean(p_us690) * 100}')
 
 fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(8, 6))
 fig.canvas.manager.set_window_title('Slopes')
