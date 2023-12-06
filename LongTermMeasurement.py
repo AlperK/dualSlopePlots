@@ -70,14 +70,14 @@ def get_optical_properties(s_ac, s_p, f):
 
 def plot_raw_amplitude_phase(ac, ph, window=None):
     if window is not None:
-        ac_1 = rolling_apply(fun=np.mean, a=ac.T[0][0][0], w=window)
-        ac_2 = rolling_apply(fun=np.mean, a=ac.T[1][0][0], w=window)
-        ac_3 = rolling_apply(fun=np.mean, a=ac.T[0][1][0], w=window)
-        ac_4 = rolling_apply(fun=np.mean, a=ac.T[1][1][0], w=window)
-        ph_1 = rolling_apply(fun=np.mean, a=ph.T[0][0][0], w=window)
-        ph_2 = rolling_apply(fun=np.mean, a=ph.T[1][0][0], w=window)
-        ph_3 = rolling_apply(fun=np.mean, a=ph.T[0][1][0], w=window)
-        ph_4 = rolling_apply(fun=np.mean, a=ph.T[1][1][0], w=window)
+        ac_1 = rolling_apply(fun=np.mean, a=ac.T[0][0][1], w=window)
+        ac_2 = rolling_apply(fun=np.mean, a=ac.T[1][0][1], w=window)
+        ac_3 = rolling_apply(fun=np.mean, a=ac.T[0][1][1], w=window)
+        ac_4 = rolling_apply(fun=np.mean, a=ac.T[1][1][1], w=window)
+        ph_1 = rolling_apply(fun=np.mean, a=ph.T[0][0][1], w=window)
+        ph_2 = rolling_apply(fun=np.mean, a=ph.T[1][0][1], w=window)
+        ph_3 = rolling_apply(fun=np.mean, a=ph.T[0][1][1], w=window)
+        ph_4 = rolling_apply(fun=np.mean, a=ph.T[1][1][1], w=window)
     else:
         ac_1 = ac.T[0][0][1]
         ac_2 = ac.T[1][0][1]
@@ -318,9 +318,9 @@ def Slope_Equations_830(S, *data):
     # return [eq1, eq2]
 
 
-date = Path('2023-11-16')
-measurement = Path('DUAL-SLOPE-BOTH-3')
-measurementCount = Path('1')
+date = Path('2023-11-20')
+measurement = Path('GILES-PHANTOM')
+measurementCount = Path('6')
 location = Path.joinpath(date, measurement, measurementCount)
 
 amplitudeLocation = Path.joinpath(location, Path('amplitude.csv'))
