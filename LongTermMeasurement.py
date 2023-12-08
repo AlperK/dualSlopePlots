@@ -259,6 +259,56 @@ def plot_raw_amplitude_phase(ac, ph, window=None):
     fig.tight_layout()
 
 
+def plot_slopes(amplitude_slopes, phase_slopes,
+                dual_amplitude_slopes_color1,
+                dual_phase_slopes_color_1,
+                dual_amplitude_slopes_color2,
+                dual_phase_slopes_color_2):
+    phantom_slopes_830 = fsolve(slope_equations_830, np.array([-0.1, 0.1]), args=(frequency, p_ua830, p_us830))
+    phantom_slopes_690 = fsolve(slope_equations_690, np.array([-0.1, 0.1]), args=(frequency, p_ua690, p_us690))
+
+    fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(8, 6))
+    fig.canvas.manager.set_window_title('Slopes')
+    fig.suptitle('Slope Plots')
+    ax = axes[0][0]
+    ax.set_title('Amplitude Slopes 830nm')
+    ax.set_ylabel('1/mm')
+    ax.set_xlabel('Data Point')
+    ax.plot(amplitude_slopes.T[0][0][0], color='darkred', label='Pair 1', linewidth=3, alpha=0.75)
+    ax.plot(amplitude_slopes.T[0][1][0], color='darkslateblue', label='Pair 2', linewidth=3, alpha=0.75)
+    ax.plot(dual_amplitude_slopes_color1, color='black', label='Average', linewidth=3, alpha=0.75)
+    ax.axhline(phantom_slopes_830[0], color='darkgreen', label='Expected', linewidth=3, alpha=0.75)
+
+    ax = axes[0][1]
+    ax.set_title('Phase Slopes 830nm')
+    ax.set_ylabel('°/mm')
+    ax.set_xlabel('Data Point')
+    ax.plot(phase_slopes.T[0][0][0] * 180 / np.pi, color='darkred', linewidth=3, alpha=0.75)
+    ax.plot(phase_slopes.T[0][1][0] * 180 / np.pi, color='darkslateblue', linewidth=3, alpha=0.75)
+    ax.plot(dual_phase_slopes_color_1 * 180 / np.pi, color='black', linewidth=3, alpha=0.75)
+    ax.axhline(phantom_slopes_830[1] * 180 / np.pi, color='darkgreen', linewidth=3, alpha=0.75)
+
+    ax = axes[1][0]
+    ax.set_title('Amplitude Slopes 690nm')
+    ax.set_ylabel('1/mm')
+    ax.set_xlabel('Data Point')
+    ax.plot(amplitude_slopes.T[0][0][1], color='darkred', label='Pair 1', linewidth=3, alpha=0.75)
+    ax.plot(amplitude_slopes.T[0][1][1], color='darkslateblue', label='Pair 2', linewidth=3, alpha=0.75)
+    ax.plot(dual_amplitude_slopes_color2, color='black', linewidth=3, alpha=0.75)
+    ax.axhline(phantom_slopes_690[0], color='darkgreen', label='Expected', linewidth=3, alpha=0.75)
+
+    ax = axes[1][1]
+    ax.set_title('Phase Slopes 690nm')
+    ax.set_ylabel('°/mm')
+    ax.set_xlabel('Data Point')
+    ax.plot(phase_slopes.T[0][0][1] * 180 / np.pi, color='darkred', linewidth=3, alpha=0.75)
+    ax.plot(phase_slopes.T[0][1][1] * 180 / np.pi, color='darkslateblue', linewidth=3, alpha=0.75)
+    ax.plot(dual_phase_slopes_color_2 * 180 / np.pi, color='black', linewidth=3, alpha=0.75)
+    ax.axhline(phantom_slopes_690[1] * 180 / np.pi, color='darkgreen', linewidth=3, alpha=0.75)
+    fig.legend()
+    fig.tight_layout()
+
+
 def plot_optical_parameters(absorption, scattering, p_mua=None, p_mus=None, window=None):
     if window is not None:
         absorption = rolling_apply(fun=np.mean, a=absorption, w=window)
@@ -318,7 +368,7 @@ def plot_optical_parameters(absorption, scattering, p_mua=None, p_mus=None, wind
     fig.tight_layout()
 
 
-def Slope_Equations_690(S, *data):
+def slope_equations_690(S, *data):
     RF = data[0]
     ua690 = data[1]
     us690 = data[2]
@@ -338,7 +388,7 @@ def Slope_Equations_690(S, *data):
     # return [eq1, eq2]
 
 
-def Slope_Equations_830(S, *data):
+def slope_equations_830(S, *data):
     RF = data[0]
     ua830 = data[1]
     us830 = data[2]
@@ -453,54 +503,6 @@ print(f'scattering 685nm: {scatteringColor2.mean()}')
 # phase_slopes_other_way_around.T[0][1][0] = \
 #     rolling_apply(fun=np.mean, a=phase_slopes_other_way_around.T[0][1][0], w=window)
 
-# S = fsolve(Slope_Equations_690, np.array([-0.1, 0.1]), args=(frequency, p_ua690, p_us690))
-S = fsolve(Slope_Equations_830, np.array([-0.1, 0.1]), args=(frequency, p_ua830, p_us830))
-
-# plot_optical_parameters(mu_a, mu_s, p_mua=p_ua690, p_mus=p_us690, window=window)
-
-fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(8, 6))
-# fig.canvas.manager.set_window_title('Slopes')
-fig.suptitle('Slope Plots')
-ax = axes[0][0]
-ax.set_title('Amplitude Slopes 830nm')
-ax.set_ylabel('1/mm')
-ax.set_xlabel('Data Point')
-ax.plot(amplitudeSlopes.T[0][0][0], color='darkred', label='Pair 1', linewidth=3, alpha=0.75)
-ax.plot(amplitudeSlopes.T[0][1][0], color='darkslateblue', label='Pair 2', linewidth=3, alpha=0.75)
-ax.plot(dualAmplitudeSlopesColor1, color='black', label='Average', linewidth=3, alpha=0.75)
-ax.axhline(S[0], color='darkgreen', label='Expected', linewidth=3, alpha=0.75)
-
-ax = axes[0][1]
-ax.set_title('Phase Slopes 830nm')
-ax.set_ylabel('°/mm')
-ax.set_xlabel('Data Point')
-ax.plot(phaseSlopes.T[0][0][0]*180/np.pi, color='darkred', linewidth=3, alpha=0.75)
-ax.plot(phaseSlopes.T[0][1][0]*180/np.pi, color='darkslateblue', linewidth=3, alpha=0.75)
-ax.plot(dualPhaseSlopesColor1*180/np.pi, color='black', linewidth=3, alpha=0.75)
-ax.axhline(S[1]*180/np.pi, color='darkgreen', linewidth=3, alpha=0.75)
-
-S = fsolve(Slope_Equations_690, np.array([-0.1, 0.1]), args=(frequency, p_ua690, p_us690))
-ax = axes[1][0]
-ax.set_title('Amplitude Slopes 690nm')
-ax.set_ylabel('1/mm')
-ax.set_xlabel('Data Point')
-ax.plot(amplitudeSlopes.T[0][0][1], color='darkred', label='Pair 1', linewidth=3, alpha=0.75)
-ax.plot(amplitudeSlopes.T[0][1][1], color='darkslateblue', label='Pair 2', linewidth=3, alpha=0.75)
-ax.plot(dualAmplitudeSlopesColor2, color='black', linewidth=3, alpha=0.75)
-ax.axhline(S[0], color='darkgreen', label='Expected', linewidth=3, alpha=0.75)
-
-ax = axes[1][1]
-ax.set_title('Phase Slopes 690nm')
-ax.set_ylabel('°/mm')
-ax.set_xlabel('Data Point')
-ax.plot(phaseSlopes.T[0][0][1]*180/np.pi, color='darkred', linewidth=3, alpha=0.75)
-ax.plot(phaseSlopes.T[0][1][1]*180/np.pi, color='darkslateblue', linewidth=3, alpha=0.75)
-ax.plot(dualPhaseSlopesColor2*180/np.pi, color='black', linewidth=3, alpha=0.75)
-ax.axhline(S[1]*180/np.pi, color='darkgreen', linewidth=3, alpha=0.75)
-fig.legend()
-fig.tight_layout()
-
-
 # mu_a, mu_s = get_optical_properties((amplitude_slopes_other_way_around.T[0][0][1] +
 #                                      amplitude_slopes_other_way_around.T[0][1][1]) / 2,
 #                                     (phase_slopes_other_way_around.T[0][0][1] +
@@ -513,7 +515,13 @@ fig.tight_layout()
 # Window size for the windowing during plotting
 window = 1
 plot_raw_amplitude_phase(ac=amplitudes, ph=phases, window=window)
-
+plot_slopes(amplitude_slopes=amplitudeSlopes,
+            phase_slopes=phaseSlopes,
+            dual_amplitude_slopes_color1=dualAmplitudeSlopesColor1,
+            dual_phase_slopes_color_1=dualPhaseSlopesColor1,
+            dual_amplitude_slopes_color2=dualAmplitudeSlopesColor2,
+            dual_phase_slopes_color_2=dualPhaseSlopesColor2,
+            )
 plot_optical_parameters(absorptionColor1, scatteringColor1, p_mua=p_ua830, p_mus=p_us830, window=window)
 # print(f'mu_a error: {(np.mean(absorptionColor1[~np.isnan(absorptionColor1)]) - p_ua830) / np.mean(p_ua830) * 100}')
 # print(f'mu_s error: {(np.mean(scatteringColor1[~np.isnan(scatteringColor1)]) - p_us690) / np.mean(p_us830) * 100}')
