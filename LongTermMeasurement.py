@@ -409,9 +409,9 @@ def slope_equations_830(S, *data):
 
 
 # Set the path for the measurement folder
-date = Path('2023-12-07')
-measurement = Path('DUAL-SLOPE-BOTH-3')
-measurementCount = Path('2')
+date = Path('2023-12-13')
+measurement = Path('DUAL-SLOPE-BOTH')
+measurementCount = Path('3')
 location = Path.joinpath(date, measurement, measurementCount)
 
 # Set the paths for the amplitude and phase data
