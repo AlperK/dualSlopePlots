@@ -409,9 +409,9 @@ def slope_equations_830(S, *data):
 
 
 # Set the path for the measurement folder
-date = Path('2023-12-13')
-measurement = Path('DUAL-SLOPE-BOTH')
-measurementCount = Path('3')
+date = Path('2023-12-14')
+measurement = Path('AO-5-3-2')
+measurementCount = Path('10')
 location = Path.joinpath(date, measurement, measurementCount)
 
 # Set the paths for the amplitude and phase data
@@ -452,7 +452,8 @@ amplitudeSlopes, phaseSlopes = get_slopes(amplitudes, phases, separations)
  dualPhaseSlopesColor1, dualPhaseSlopesColor2) = get_dual_slopes(amplitudeSlopes, phaseSlopes)
 absorptionColor1, scatteringColor1 = get_optical_properties(dualAmplitudeSlopesColor1, dualPhaseSlopesColor1, frequency)
 absorptionColor2, scatteringColor2 = get_optical_properties(dualAmplitudeSlopesColor2, dualPhaseSlopesColor2, frequency)
-
+np.savetxt(Path.joinpath(location, '830nm-absorption.txt'), absorptionColor1)
+np.savetxt(Path.joinpath(location, '690nm-absorption.txt'), absorptionColor2)
 print(f'absorption 830nm: {absorptionColor1.mean()}')
 print(f'scattering 830nm: {scatteringColor1.mean()}')
 print(f'absorption 685nm: {absorptionColor2.mean()}')
