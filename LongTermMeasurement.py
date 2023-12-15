@@ -427,7 +427,7 @@ def slope_equations_830(S, *data):
 
 # Set the path for the measurement folder
 date = Path('2023-12-14')
-measurement = Path('DUAL-SLOPE-BOTH')
+measurement = Path('Giles-Test')
 measurementCount = Path('1')
 location = Path.joinpath(date, measurement, measurementCount)
 
